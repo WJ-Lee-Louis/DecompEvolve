@@ -9,6 +9,7 @@ from pathlib import Path
 
 from decompevolve.data import DATASET, ROOT, SPLITS, digest, load_dataset, load_splits
 from decompevolve.evaluation import build_request, evaluate_one, summarize
+from decompevolve.environment import load_environment
 
 
 def main():
@@ -54,8 +55,9 @@ def main():
                           "max_output_tokens": config["max_output_tokens"], "tools": [], "tool_choice": "none",
                           "fingerprint": fingerprint, "api_calls": 0}, indent=2))
         return 0
+    load_environment()
     if not os.environ.get("OPENAI_API_KEY"):
-        parser.error("Export OPENAI_API_KEY before a live evaluation. --dry-run needs no key.")
+        parser.error("Set OPENAI_API_KEY in the project .env file or shell environment. --dry-run needs no key.")
     if args.resume and not args.run_dir:
         parser.error("--resume requires --run-dir")
     try:

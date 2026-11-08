@@ -43,7 +43,9 @@ python scripts/evaluate.py --config configs/baseline_mini.json --dry-run
 
 ## Baseline 실행
 
-셸 환경변수 `OPENAI_API_KEY`를 설정하세요. `.env` 파일은 자동으로 읽지 않습니다.
+프로젝트 최상위 `.env` 파일에 `OPENAI_API_KEY="실제 API 키"`를 저장하세요.
+평가 스크립트가 실행 위치와 관계없이 이 파일을 자동으로 불러오므로 `source .env`는 필요 없습니다.
+이미 설정된 셸 환경변수가 있으면 해당 값이 우선합니다. 새 터미널에서도 `.env`를 자동으로 읽습니다.
 키는 코드·설정·Git에 넣지 마세요. 실제 평가는 아래 명령에서 비용이 발생합니다.
 모델 접근 권한은 계정에서 확인해야 하며, 사용 불가능한 모델을 자동 대체하지 않습니다.
 
@@ -58,6 +60,9 @@ python scripts/evaluate.py --config configs/baseline_mini.json --split test
 
 Luna는 `gpt-6-luna`, Mini는 `gpt-5.4-mini-2026-03-17`을 사용합니다.
 두 설정 모두 `reasoning.effort=medium`, `max_output_tokens=8192`입니다.
+추가 비교 설정은 `configs/baseline_luna_5_6.json` (`gpt-5.6-luna`)과
+`configs/baseline_mini_5.json` (`gpt-5-mini-2025-08-07`)입니다. 추론 강도·출력 예산·프롬프트·Test 100문항은 동일합니다.
+실행하려면 위 평가 명령의 `--config` 경로를 해당 파일로 변경하세요.
 출력 예산에는 보이지 않는 추론 토큰도 포함되므로, `incomplete`가 많으면 Train에서 예산을 점검하세요.
 
 문항당 Responses API 요청은 1회이며 `tools=[]`, `tool_choice=none`, `store=false`입니다.

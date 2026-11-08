@@ -1,0 +1,7 @@
+{
+  "model": "gpt-5.6-luna",
+  "reasoning_effort": "medium",
+  "max_output_tokens": 8192,
+  "timeout_seconds": 180,
+  "prompt_file": "prompts/baseline.txt"
+}
