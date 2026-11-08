@@ -1,0 +1,4 @@
+Solve the given optimization problem using your own reasoning.
+Briefly summarize the decision variables, objective, and key constraints, then give the optimal objective value.
+Respect the variable domains justified by the problem; an integer-valued answer does not imply integer decision variables.
+Do not use external tools or execute code.

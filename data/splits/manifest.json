@@ -1,0 +1,14 @@
+{
+  "dataset": "data/datasets_ICML_int.csv",
+  "dataset_sha256": "79d725f61e2d624df8a6a4c4a53cfeca42da6e7e0d7466613695fb8b9c60fc39",
+  "seed": 42,
+  "counts": {
+    "train": 222,
+    "val": 50,
+    "test": 100
+  },
+  "grouping": "question_lexical_v1: same 12-token opening OR 3-gram Jaccard >= .55 and numeric multiset Dice >= .80",
+  "group_count": 313,
+  "reviewed_overrides_sha256": "9e8887aef9d5265cb4e1639adaeedd717ae0ae251e72b372b96a97d57bf17488",
+  "note": "Heuristic groups require review; no guarantee of semantic deduplication. Answers unchanged. No LP/IP stratification claimed."
+}

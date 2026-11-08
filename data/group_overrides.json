@@ -1,0 +1,16 @@
+{
+  "description": "Reviewed question-family links between table/text or formulation/solve variants. Grouping uses question content, never answer agreement; conflicting labels remain unchanged.",
+  "groups": [
+    [153, 154, 363, 364],
+    [157, 158, 367, 368],
+    [170, 379],
+    [176, 385],
+    [177, 386],
+    [178, 387],
+    [184, 395],
+    [187, 398],
+    [196, 407],
+    [356, 409],
+    [357, 410]
+  ]
+}
