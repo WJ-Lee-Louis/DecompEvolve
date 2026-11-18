@@ -50,7 +50,7 @@ split은 seed 42로 고정되어 있습니다. 탐지·검토한 같은 문제�
 
 입력은 세 부분으로 구성됩니다.
 
-**① 기본 풀이 지시 — `prompts/baseline.txt`**
+**① 기본 풀이 지시 — `experiments/api_baseline/prompts/baseline.txt`**
 
 실제로 전달하는 영문 지시는 다음과 같습니다.
 
@@ -63,7 +63,7 @@ Do not use external tools or execute code.
 
 즉, 스스로 문제를 풀고, 무엇을 결정하는지·무엇을 최대화 또는 최소화하는지·어떤 조건을 지켜야 하는지를 짧게 정리하도록 합니다. 정답 라벨이 정수라는 이유만으로 결정변수까지 정수로 제한하지 않습니다.
 
-**② 공통 출력 규칙 — `src/decompevolve/evaluation.py`**
+**② Baseline 출력 규칙 — `experiments/api_baseline/evaluation.py`**
 
 프로그램이 기본 지시 뒤에 추가하는 고정 규칙의 의미는 다음과 같습니다.
 
@@ -174,4 +174,4 @@ Baseline은 현재 초기 프롬프트를 그대로 사용합니다. GEPA·Ours�
 
 세 방법의 성능은 같은 모델·추론 강도·출력 규약·평가기·Test 문제로 비교합니다. 개선의 대상은 문제를 푸는 지침이며, 정답을 읽는 방식이나 채점 기준을 바꿔서 점수를 올리는 것은 아닙니다. 현재 구현에는 GEPA·Ours 최적화 과정이 아직 포함되어 있지 않습니다.
 
-관련 코드: [기본 프롬프트](../prompts/baseline.txt), [공통 평가기](../src/decompevolve/evaluation.py), [실행 스크립트](../scripts/evaluate.py), [Luna 설정](../configs/baseline_luna.json), [Mini 설정](../configs/baseline_mini.json).
+관련 코드: [기본 프롬프트](../prompts/baseline.txt), [Baseline 평가기](../evaluation.py), [실행 스크립트](../evaluate.py), [Luna 설정](../configs/baseline_luna.json), [Mini 설정](../configs/baseline_mini.json).

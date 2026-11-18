@@ -1,5 +1,5 @@
 """Load project-local credentials without replacing explicit shell settings."""
-from decompevolve.data import ROOT
+from .data import ROOT
 
 
 def load_environment(path=ROOT / ".env"):

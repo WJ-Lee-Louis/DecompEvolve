@@ -15,10 +15,10 @@
 
 | 모델 | 정확도 | correct | incorrect | format_error | incomplete | 평균 응답 시간 | 출력 토큰 합계 |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| GPT-6 Luna (기존) | 85% | 85 | 11 | 4 | 0 | 10.85초 | 103,346 |
-| GPT-5.6 Luna (추가) | 83% | 83 | 14 | 3 | 0 | 8.57초 | 90,574 |
-| GPT-5.4 Mini (기존) | 77% | 77 | 16 | 5 | 2 | 9.15초 | 152,237 |
-| GPT-5 Mini (추가) | 84% | 84 | 12 | 4 | 0 | 27.15초 | 227,542 |
+| GPT-6 Luna | 85% | 85 | 11 | 4 | 0 | 10.85초 | 103,346 |
+| GPT-5.6 Luna | 83% | 83 | 14 | 3 | 0 | 8.57초 | 90,574 |
+| GPT-5.4 Mini | 77% | 77 | 16 | 5 | 2 | 9.15초 | 152,237 |
+| GPT-5 Mini | 84% | 84 | 12 | 4 | 0 | 27.15초 | 227,542 |
 
 모두 100문항을 완료했으며 API 오류는 없었습니다. 각 실행의 입력 토큰은 31,631개입니다. 출력 토큰에는 내부 추론 토큰이 포함되므로 이를 별도로 더하지 않습니다. 평균 응답 시간은 각 문항 요청의 경과시간을 평균한 값이며, 서버 대기·네트워크 시간도 포함할 수 있습니다.
 
@@ -48,9 +48,9 @@ GPT-5 Mini는 GPT-5.4 Mini보다 7문항을 더 맞혔지만, 평균 응답 시�
 
 결과 폴더 이름은 UTC 기준이며 각 폴더에 `manifest.json`, `predictions.jsonl`, `summary.json`이 있습니다.
 
-- [GPT-5.6 Luna 요약](../runs/baseline/gpt-5.6-luna/20261108T155632.887304Z/summary.json)
-- [GPT-5 Mini 요약](../runs/baseline/gpt-5-mini-2025-08-07/20261108T155632.887289Z/summary.json)
-- [GPT-6 Luna 기존 요약](../runs/baseline/gpt-6-luna/20261108T150853.039879Z/summary.json)
-- [GPT-5.4 Mini 기존 요약](../runs/baseline/gpt-5.4-mini-2026-03-17/20261108T152658.887459Z/summary.json)
+- [GPT-5.6 Luna 요약](../../../runs/baseline/gpt-5.6-luna/20261108T155632.887304Z/summary.json)
+- [GPT-5 Mini 요약](../../../runs/baseline/gpt-5-mini-2025-08-07/20261108T155632.887289Z/summary.json)
+- [GPT-6 Luna 기존 요약](../../../runs/baseline/gpt-6-luna/20261108T150853.039879Z/summary.json)
+- [GPT-5.4 Mini 기존 요약](../../../runs/baseline/gpt-5.4-mini-2026-03-17/20261108T152658.887459Z/summary.json)
 
 `runs/`는 Git에서 제외되어 있으므로, 다른 환경에서는 결과 파일을 별도로 전달해야 합니다.

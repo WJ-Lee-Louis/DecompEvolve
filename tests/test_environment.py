@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from decompevolve.environment import load_environment
+from benchmark_support.environment import load_environment
 
 
 class EnvironmentTests(unittest.TestCase):

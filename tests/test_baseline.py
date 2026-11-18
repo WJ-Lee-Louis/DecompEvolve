@@ -1,15 +1,20 @@
+import contextlib
+import hashlib
+import io
 import json
 import tempfile
 import unittest
-import contextlib
-import io
-import runpy
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from decompevolve.data import ROOT, SPLITS, allocate_groups, load_dataset, load_splits
-from decompevolve.evaluation import build_request, evaluate_one, parse_answer, summarize
+from benchmark_support.data import ROOT, SPLITS, allocate_groups, load_dataset, load_splits
+from experiments.api_baseline.evaluate import main
+from experiments.api_baseline.evaluation import build_request, evaluate_one, parse_answer, summarize
+
+
+BASELINE_DIR = ROOT / "experiments/api_baseline"
+LUNA_CONFIG = BASELINE_DIR / "configs/baseline_luna.json"
 
 
 class FakeResponse:
@@ -42,7 +47,7 @@ class FakeClient:
 
 class BaselineTests(unittest.TestCase):
     def setUp(self):
-        self.config = json.loads((ROOT / "configs/baseline_luna.json").read_text())
+        self.config = json.loads(LUNA_CONFIG.read_text())
         self.row = {"index": 1, "question": "An optimization problem", "answer": -200}
 
     def test_last_line_and_signed_integer(self):
@@ -158,19 +163,31 @@ class BaselineTests(unittest.TestCase):
         self.assertEqual(requests[0]["tool_choice"], "none")
 
     def test_cli_resume_skips_recorded_requests(self):
-        main = runpy.run_path(str(ROOT / "scripts/evaluate.py"))["main"]
         rows = load_dataset()
         test_ids = set(load_splits(rows)["test"])
         expected = next(row["answer"] for row in rows if row["index"] in test_ids)
         fake = FakeClient(FakeResponse(f"Answer: {expected}"))
         with tempfile.TemporaryDirectory() as directory:
             run_dir = Path(directory) / "run"
-            argv = ["evaluate.py", "--config", "configs/baseline_luna.json", "--limit", "1", "--run-dir", str(run_dir)]
+            argv = ["evaluate.py", "--config", str(LUNA_CONFIG.relative_to(ROOT)),
+                    "--limit", "1", "--run-dir", str(run_dir)]
             with patch.dict("os.environ", {"OPENAI_API_KEY": "offline-test-only"}), patch("openai.OpenAI", return_value=fake), contextlib.redirect_stdout(io.StringIO()):
                 with patch("sys.argv", argv):
                     self.assertEqual(main(), 0)
                 with patch("sys.argv", argv + ["--resume"]):
                     self.assertEqual(main(), 0)
+                # Resume runs written with either of the earlier prompt paths.
+                manifest_path = run_dir / "manifest.json"
+                manifest = json.loads(manifest_path.read_text())
+                for previous_path in ("prompts/baseline.txt", "experiments/baseline/prompts/baseline.txt"):
+                    with self.subTest(prompt_path=previous_path):
+                        del manifest["fingerprint"]
+                        manifest["config"]["prompt_file"] = previous_path
+                        manifest["fingerprint"] = hashlib.sha256(json.dumps(manifest, sort_keys=True).encode()).hexdigest()
+                        manifest_path.write_text(json.dumps(manifest))
+                        with patch("sys.argv", argv + ["--resume"]):
+                            self.assertEqual(main(), 0)
+                        self.assertEqual(json.loads(manifest_path.read_text()), manifest)
             self.assertEqual(len(fake.calls), 1)
             self.assertEqual(len((run_dir / "predictions.jsonl").read_text().splitlines()), 1)
             self.assertEqual(json.loads((run_dir / "summary.json").read_text())["accuracy"], 1.0)

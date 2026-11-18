@@ -7,9 +7,10 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from decompevolve.data import DATASET, ROOT, SPLITS, digest, load_dataset, load_splits
-from decompevolve.evaluation import build_request, evaluate_one, summarize
-from decompevolve.environment import load_environment
+from benchmark_support.data import DATASET, ROOT, SPLITS, digest, load_dataset, load_splits
+from benchmark_support.environment import load_environment
+
+from .evaluation import build_request, evaluate_one, summarize
 
 
 def main():
@@ -45,7 +46,7 @@ def main():
         "config": config, "split": args.split, "selected_ids": [r["index"] for r in selected],
         "dataset_sha256": digest(DATASET), "split_manifest": json.loads((SPLITS / "manifest.json").read_text()),
         "request_template": build_request("<QUESTION>", config, prompt),
-        "evaluator_sha256": digest(ROOT / "src/decompevolve/evaluation.py"),
+        "evaluator_sha256": digest(Path(__file__).with_name("evaluation.py")),
         "sdk_max_retries": 0,
     }
     fingerprint = hashlib.sha256(json.dumps(spec, sort_keys=True).encode()).hexdigest()
@@ -68,7 +69,14 @@ def main():
     records = []
     if args.resume:
         manifest = json.loads((run_dir / "manifest.json").read_text())
-        if manifest["fingerprint"] != fingerprint:
+        resume_fingerprints = {fingerprint}
+        if config["prompt_file"] == "experiments/api_baseline/prompts/baseline.txt":
+            # Older runs hashed the prompt path as well as the actual prompt text.
+            for previous_path in ("prompts/baseline.txt", "experiments/baseline/prompts/baseline.txt"):
+                previous_config = {**config, "prompt_file": previous_path}
+                previous_spec = {**spec, "config": previous_config}
+                resume_fingerprints.add(hashlib.sha256(json.dumps(previous_spec, sort_keys=True).encode()).hexdigest())
+        if manifest["fingerprint"] not in resume_fingerprints:
             parser.error("Resume requires identical model, prompt, evaluator, dataset, and selection")
         path = run_dir / "predictions.jsonl"
         if path.exists():
