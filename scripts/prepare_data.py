@@ -1,7 +1,7 @@
 """Create fixed ID splits without modifying the CSV or its answer labels."""
 import argparse
 import json
-from benchmark_support.data import DATASET, SPLITS, allocate_groups, digest, group_questions, load_dataset, load_splits
+from benchmark_support.data import DATASET, ROOT, SPLITS, allocate_groups, digest, group_questions, load_dataset, load_splits
 
 
 def main():
@@ -21,7 +21,7 @@ def main():
     groups = group_questions(rows, overrides["groups"])
     ids = allocate_groups(groups, args.val_size, args.test_size, args.seed)
     manifest = {
-        "dataset": str(DATASET.relative_to(DATASET.parents[1])),
+        "dataset": DATASET.relative_to(ROOT).as_posix(),
         "dataset_sha256": digest(DATASET),
         "seed": args.seed,
         "counts": {name: len(values) for name, values in ids.items()},

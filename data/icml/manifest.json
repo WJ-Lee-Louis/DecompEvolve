@@ -1,0 +1,9 @@
+{
+  "file": "datasets_ICML_int.csv",
+  "sha256": "79d725f61e2d624df8a6a4c4a53cfeca42da6e7e0d7466613695fb8b9c60fc39",
+  "counts": {
+    "rows": 372
+  },
+  "split_manifest": "splits/manifest.json",
+  "group_overrides": "group_overrides.json"
+}

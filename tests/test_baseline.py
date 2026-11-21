@@ -176,13 +176,19 @@ class BaselineTests(unittest.TestCase):
                     self.assertEqual(main(), 0)
                 with patch("sys.argv", argv + ["--resume"]):
                     self.assertEqual(main(), 0)
-                # Resume runs written with either of the earlier prompt paths.
+                # Resume runs written before either the prompt or the dataset moved.
                 manifest_path = run_dir / "manifest.json"
-                manifest = json.loads(manifest_path.read_text())
-                for previous_path in ("prompts/baseline.txt", "experiments/baseline/prompts/baseline.txt"):
-                    with self.subTest(prompt_path=previous_path):
-                        del manifest["fingerprint"]
-                        manifest["config"]["prompt_file"] = previous_path
+                current = json.loads(manifest_path.read_text())
+                old_dataset = "data/datasets_ICML_int.csv"
+                for prompt_path, dataset_path in (
+                    ("prompts/baseline.txt", old_dataset),
+                    ("experiments/baseline/prompts/baseline.txt", current["split_manifest"]["dataset"]),
+                    (current["config"]["prompt_file"], old_dataset),
+                ):
+                    with self.subTest(prompt_path=prompt_path, dataset_path=dataset_path):
+                        manifest = {key: value for key, value in current.items() if key != "fingerprint"}
+                        manifest["config"] = {**current["config"], "prompt_file": prompt_path}
+                        manifest["split_manifest"] = {**current["split_manifest"], "dataset": dataset_path}
                         manifest["fingerprint"] = hashlib.sha256(json.dumps(manifest, sort_keys=True).encode()).hexdigest()
                         manifest_path.write_text(json.dumps(manifest))
                         with patch("sys.argv", argv + ["--resume"]):

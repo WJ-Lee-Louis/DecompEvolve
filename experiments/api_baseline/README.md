@@ -5,6 +5,20 @@
 - [평가 과정과 설정](docs/261109_baseline_setting.md)
 - [기존 모델 4종의 Test 결과](docs/261109_baseline_results.md)
 
+## OptiMind IndustryOR 실행
+
+새 비교 실험의 기본 평가는 Test 30문항입니다. `optimind_openai.json`은 OpenAI Responses API와 `OPENAI_API_KEY`를, `optimind_exaone.json`은 LG EXAONE Chat Completions API와 `EXAONE_API_KEY`를 사용합니다. 두 설정 모두 문항당 한 번 호출하고 동일한 정수 채점 규칙을 적용합니다. [EXAONE API 사양](https://docs.exaone.ai/en/docs/k-exaone-2.5)
+
+```bash
+python -m experiments.api_baseline.evaluate --config experiments/api_baseline/configs/optimind_openai.json --dry-run
+python -m experiments.api_baseline.evaluate --config experiments/api_baseline/configs/optimind_exaone.json --dry-run
+modal run --detach scripts/modal_experiments.py::run --method baseline --provider exaone --model k-exaone_v2.5 --run-id baseline-exaone-01
+```
+
+마지막 명령은 모델을 실제 호출합니다. 먼저 `--dry-run`으로 설정을 확인하거나 `--split train --limit 3`을 지정해 소규모 실행을 할 수 있습니다. 제공자에 맞는 모델 ID를 `--model`로 지정하세요. OptiMind 풀이 호출의 제한은 문항당 120초와 생성 토큰 16,384개입니다. 시간이나 토큰 한도에 도달하면 0점을 기록하고 다음 문항으로 넘어갑니다. 원격 결과는 `decompevolve-results` 볼륨의 `/baseline/<run-id>`에 저장됩니다. `summary.json`에는 전체 및 난이도별 정확도가 들어 있습니다.
+
+아래 절은 기존 ICML Baseline 설정과 실행 기록을 설명합니다.
+
 ## 비용 없는 사전 확인
 
 API 키 없이도 실행되며 API 호출과 결과 파일 생성이 없습니다.

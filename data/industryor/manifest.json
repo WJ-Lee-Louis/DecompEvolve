@@ -1,0 +1,10 @@
+{
+  "file": "datasets_IndustryOR_int.csv",
+  "sha256": "25d79b4a04f11c760159d2285f43653b4def7a62a131dbd359ce007080e25b05",
+  "counts": {
+    "rows": 85
+  },
+  "noncanonical_integer_answers": {
+    "66": "369000.0"
+  }
+}

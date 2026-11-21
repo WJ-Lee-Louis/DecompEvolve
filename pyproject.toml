@@ -9,5 +9,9 @@ description = "Benchmark utilities for optimization reasoning experiments"
 requires-python = ">=3.9"
 dependencies = ["openai>=2.0,<3", "python-dotenv>=1.0,<2"]
 
+[project.optional-dependencies]
+gepa = ["gepa==0.1.4"]
+modal = ["modal==1.6.4"]
+
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -8,8 +8,30 @@ from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-DATASET = ROOT / "data/datasets_ICML_int.csv"
-SPLITS = ROOT / "data/splits"
+DATASET = ROOT / "data/icml/datasets_ICML_int.csv"
+SPLITS = DATASET.parent / "splits"
+OPTIMIND = ROOT / "data/industryor_optimind"
+OPTIMIND_DATASET = OPTIMIND / "datasets_IndustryOR_OptiMind_int.csv"
+
+
+def load_experiment_dataset(name):
+    dataset = {"icml": DATASET, "industryor_optimind": OPTIMIND_DATASET}[name]
+    directory = dataset.parent / "splits"
+    rows = load_dataset(dataset)
+    splits = load_splits(rows, directory=directory, dataset=dataset)
+    manifest = json.loads((directory / "manifest.json").read_text(encoding="utf-8"))
+    if name == "industryor_optimind":
+        difficulty_file = OPTIMIND / "difficulty.csv"
+        if manifest["difficulty_sha256"] != digest(difficulty_file):
+            raise ValueError("OptiMind difficulty labels changed since split creation")
+        with difficulty_file.open(encoding="utf-8", newline="") as handle:
+            labels = {int(row["index"]): row["difficulty"] for row in csv.DictReader(handle, strict=True)}
+        for row in rows:
+            row["difficulty"] = labels[row["index"]]
+        for split, indices in splits.items():
+            if Counter(labels[index] for index in indices) != manifest["difficulty_counts"][split]:
+                raise ValueError(f"Unexpected difficulty counts for {split}")
+    return rows, splits, manifest
 
 
 def digest(path):

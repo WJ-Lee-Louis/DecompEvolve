@@ -1,0 +1,143 @@
+{
+  "source": {
+    "repository": "microsoft/OptiGuide",
+    "revision": "7b9947be2f50e2051601baba516c5d03dc3c0baa",
+    "url": "https://github.com/microsoft/OptiGuide/blob/7b9947be2f50e2051601baba516c5d03dc3c0baa/optimind/data/optimind_cleaned_classified_industryor.csv",
+    "paper": "https://arxiv.org/html/2509.22979#A10.SS1",
+    "license": "MIT (OptiGuide repository)",
+    "license_file": "LICENSE",
+    "file": "optimind_cleaned_classified_industryor.csv",
+    "sha256": "fd80b3061e13edc040a7ff395f4f664fd761ad26b651e5dc8dcbbd7d3a48b427",
+    "intended_use": "Held-out evaluation, as specified by the authors in Appendix J.1."
+  },
+  "integer_subset": {
+    "file": "datasets_IndustryOR_OptiMind_int.csv",
+    "sha256": "9b666f5bf9d93a5ea52f4bbd23ab4558f23147ca2bc2e298b003c34ae8b45bb1",
+    "index": "1-based data record number in the upstream CSV, excluding the header.",
+    "question": "Upstream question text with the documented correction below.",
+    "answer": "Single finite scalar parsed as Decimal, kept only if exactly integral, and written as a base-10 integer without rounding.",
+    "excluded_source_indices": [
+      5,
+      14,
+      26,
+      29,
+      30,
+      34,
+      35,
+      45,
+      46,
+      53,
+      80,
+      84,
+      95,
+      98
+    ],
+    "question_corrections": [
+      {
+        "index": 58,
+        "fixed_v2_id": 59,
+        "source": "https://huggingface.co/datasets/chenyitian-shanshu/ORLMBenchmark/resolve/54ca621042b4619b90ce23ba3edd710611822e02/IndustryOR_fixedV2.json",
+        "change": "Restored the five inequality signs in Table 1-7 from the SIRL fixed V2 question."
+      }
+    ]
+  },
+  "counts": {
+    "source": 99,
+    "integer_subset": 85,
+    "noninteger_excluded": 14
+  },
+  "problem_classes": {
+    "count_method": "Each included class label is counted once per record. Records can have multiple class labels.",
+    "source": {
+      "Assignment Problem": 6,
+      "Bin Packing": 2,
+      "Blending Problem": 3,
+      "Capacitated Facility Location Problem": 3,
+      "Capacitated Lot-sizing Problem (CLSP)": 8,
+      "Capacitated Vehicle Routing Problem with Time Windows (CVRPTW)": 1,
+      "Cutting Stock Problem": 3,
+      "Diet Problem": 3,
+      "Discrete Lot-sizing and Scheduling Problem": 1,
+      "Facility Location Problem": 1,
+      "Factory Planning Problem": 2,
+      "Farm Planning": 3,
+      "Flow Shop Scheduling": 2,
+      "Knapsack": 11,
+      "Lot-Sizing Problem": 11,
+      "Military Personnel Deployment Problem": 1,
+      "Multi-Commodity Transportation Problem": 1,
+      "Network Optimization": 1,
+      "Operations Optimization": 8,
+      "PortfolioOptimization": 1,
+      "Production Planning Problem": 33,
+      "Profit Maximization Problem": 19,
+      "Revenue Management Problem": 1,
+      "Set Cover": 1,
+      "Set Multi-Cover": 4,
+      "SupplyChain": 1,
+      "Team Formulation Problem": 1,
+      "Transportation Problem": 6,
+      "Transportation, Airline Industry, Resource Allocation": 2,
+      "TravelingSalesman": 2
+    },
+    "integer_subset": {
+      "Assignment Problem": 4,
+      "Bin Packing": 1,
+      "Blending Problem": 3,
+      "Capacitated Facility Location Problem": 3,
+      "Capacitated Lot-sizing Problem (CLSP)": 8,
+      "Cutting Stock Problem": 2,
+      "Discrete Lot-sizing and Scheduling Problem": 1,
+      "Facility Location Problem": 1,
+      "Farm Planning": 2,
+      "Flow Shop Scheduling": 1,
+      "Knapsack": 9,
+      "Lot-Sizing Problem": 11,
+      "Military Personnel Deployment Problem": 1,
+      "Multi-Commodity Transportation Problem": 1,
+      "Network Optimization": 1,
+      "Operations Optimization": 8,
+      "PortfolioOptimization": 1,
+      "Production Planning Problem": 29,
+      "Profit Maximization Problem": 17,
+      "Revenue Management Problem": 1,
+      "Set Cover": 1,
+      "Set Multi-Cover": 4,
+      "SupplyChain": 1,
+      "Team Formulation Problem": 1,
+      "Transportation Problem": 6,
+      "Transportation, Airline Industry, Resource Allocation": 2,
+      "TravelingSalesman": 2
+    }
+  },
+  "splits": "splits/manifest.json",
+  "difficulty": {
+    "file": "difficulty.csv",
+    "sha256": "ff73c24961e703268dc91dd223fe5d98c5515484eca9c6b34cd3a858a6d51153",
+    "source": "https://huggingface.co/datasets/chenyitian-shanshu/ORLMBenchmark/resolve/54ca621042b4619b90ce23ba3edd710611822e02/IndustryOR_fixedV2.json",
+    "source_sha256": "756549264386d9c28f3bf15b442e4d45e345f809155f7c7951c9b7edfd25ee8b",
+    "crosswalk_source": "https://github.com/microsoft/OptiGuide/blob/7b9947be2f50e2051601baba516c5d03dc3c0baa/optimind/data/comparisons/industryOR_original_vs_ours.html",
+    "method": "Match each OptiMind question to the comparison table updated question after normalizing whitespace, then join the table row number to the corresponding fixed V2 ID.",
+    "note": "Labels are inherited from SIRL fixed V2. OptiMind provides problem classes and the difficulty of its edited instances was not independently reassessed.",
+    "unmapped_fixed_v2_ids": [
+      17
+    ],
+    "counts": {
+      "source": {
+        "Easy": 39,
+        "Medium": 41,
+        "Hard": 19
+      },
+      "integer_subset": {
+        "Easy": 36,
+        "Medium": 38,
+        "Hard": 11
+      },
+      "noninteger_excluded": {
+        "Easy": 3,
+        "Medium": 3,
+        "Hard": 8
+      }
+    }
+  }
+}
