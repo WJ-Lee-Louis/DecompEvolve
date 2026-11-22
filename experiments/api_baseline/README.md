@@ -15,7 +15,7 @@ python -m experiments.api_baseline.evaluate --config experiments/api_baseline/co
 modal run --detach scripts/modal_experiments.py::run --method baseline --provider exaone --model k-exaone_v2.5 --run-id baseline-exaone-01
 ```
 
-마지막 명령은 모델을 실제 호출합니다. 먼저 `--dry-run`으로 설정을 확인하거나 `--split train --limit 3`을 지정해 소규모 실행을 할 수 있습니다. 제공자에 맞는 모델 ID를 `--model`로 지정하세요. OptiMind 풀이 호출의 제한은 문항당 120초와 생성 토큰 16,384개입니다. 시간이나 토큰 한도에 도달하면 0점을 기록하고 다음 문항으로 넘어갑니다. 원격 결과는 `decompevolve-results` 볼륨의 `/baseline/<run-id>`에 저장됩니다. `summary.json`에는 전체 및 난이도별 정확도가 들어 있습니다.
+마지막 명령은 모델을 실제 호출합니다. 먼저 `--dry-run`으로 설정을 확인하거나 `--split train --limit 3`을 지정해 소규모 실행을 할 수 있습니다. 제공자에 맞는 모델 ID를 `--model`로 지정하세요. OptiMind 풀이 호출의 상한은 문항당 15분(900초)과 생성 토큰 65,536개입니다. 생성 토큰에는 추론 토큰도 포함됩니다. 시간이나 토큰 한도에 도달하면 0점을 기록하고 다음 문항으로 넘어갑니다. 원격 결과는 `decompevolve-results` 볼륨의 `/baseline/<run-id>`에 저장됩니다. `summary.json`에는 전체 및 난이도별 정확도가 들어 있습니다.
 
 아래 절은 기존 ICML Baseline 설정과 실행 기록을 설명합니다.
 

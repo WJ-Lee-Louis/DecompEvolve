@@ -3,7 +3,7 @@
   "provider": "exaone",
   "model": "k-exaone_v2.5",
   "reasoning_effort": "high",
-  "max_output_tokens": 16384,
-  "timeout_seconds": 120,
+  "max_output_tokens": 65536,
+  "timeout_seconds": 900,
   "prompt_file": "experiments/api_baseline/prompts/baseline.txt"
 }

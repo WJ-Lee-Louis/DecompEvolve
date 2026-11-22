@@ -32,7 +32,7 @@ class OptiMindTests(unittest.TestCase):
             self.assertNotIn(str(row["answer"]), json.dumps(payload))
             self.assertNotIn("tools", payload)
             self.assertEqual(payload["reasoning_effort"], "high")
-            self.assertEqual(payload["max_tokens"], 16384)
+            self.assertEqual(payload["max_tokens"], 65536)
             return httpx.Response(200, json={
                 "id": "mock", "object": "chat.completion", "created": 0, "model": config["model"],
                 "choices": [{"index": 0, "finish_reason": "stop",
@@ -43,7 +43,7 @@ class OptiMindTests(unittest.TestCase):
 
         sdk = AsyncOpenAI(api_key="mock", base_url=providers.EXAONE_URL, max_retries=0,
                           http_client=httpx.AsyncClient(transport=httpx.MockTransport(respond)))
-        with providers.DeadlineClient(sdk, timeout=120) as client:
+        with providers.DeadlineClient(sdk, timeout=config["timeout_seconds"]) as client:
             record = providers.evaluate_task(client, row, config, "Solve this.")
         self.assertEqual(record["status"], "correct")
         self.assertEqual(record["usage"]["output_tokens_details"]["reasoning_tokens"], 25)
@@ -150,10 +150,10 @@ class OptiMindTests(unittest.TestCase):
             with (
                 patch.object(optimize.evaluate, "create_client"),
                 patch.object(optimize.evaluate, "evaluate_task", side_effect=task) as task_mock,
-                patch.object(optimize.evaluate, "monotonic", side_effect=[0, 120]),
+                patch.object(optimize.evaluate, "monotonic", side_effect=[0, 900]),
                 contextlib.redirect_stdout(io.StringIO()),
             ):
-                self.assertEqual(optimize.evaluate.main(argv, deadline=120), optimize.evaluate.PAUSED)
+                self.assertEqual(optimize.evaluate.main(argv, deadline=900), optimize.evaluate.PAUSED)
                 self.assertEqual(task_mock.call_count, 1)
                 self.assertEqual(optimize.evaluate.main(argv + ["--resume"]), 0)
             summary = json.loads((target / "summary.json").read_text())
@@ -182,7 +182,7 @@ class OptiMindTests(unittest.TestCase):
                 patch.object(optimize.evaluate, "evaluate_task", side_effect=task),
                 contextlib.redirect_stdout(io.StringIO()),
             ):
-                self.assertEqual(optimize.main(argv, deadline=650), optimize.evaluate.PAUSED)
+                self.assertEqual(optimize.main(argv, deadline=4550), optimize.evaluate.PAUSED)
                 self.assertTrue((target / "optimizer" / "gepa_state.bin").is_file())
                 self.assertFalse((target / "best_prompt.txt").exists())
                 self.assertEqual(waves.call_count, 5)

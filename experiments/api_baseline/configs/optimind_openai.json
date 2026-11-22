@@ -3,7 +3,7 @@
   "provider": "openai",
   "model": "gpt-5.4-mini-2026-03-17",
   "reasoning_effort": "medium",
-  "max_output_tokens": 16384,
-  "timeout_seconds": 120,
+  "max_output_tokens": 65536,
+  "timeout_seconds": 900,
   "prompt_file": "experiments/api_baseline/prompts/baseline.txt"
 }
