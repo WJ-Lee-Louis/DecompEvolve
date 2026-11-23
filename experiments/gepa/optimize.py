@@ -282,7 +282,9 @@ def main(argv=None, checkpoint=None, deadline=None):
         "task": config, "reflection": reflection_config, "seed": args.seed,
         "max_metric_calls": args.max_metric_calls, "parallelism": args.parallelism, "split_manifest": split_manifest,
         "split_ids": splits,
-        "seed_prompt": (ROOT / config["prompt_file"]).read_text(encoding="utf-8"),
+        "seed_prompt": evaluation.optimind_solving_instructions(
+            (ROOT / config["prompt_file"]).read_text(encoding="utf-8")
+        ),
         "code_sha256": {Path(module.__file__).name: digest(module.__file__) for module in (providers, evaluation)},
         "optimizer_sha256": digest(__file__),
     }

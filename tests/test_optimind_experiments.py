@@ -13,7 +13,7 @@ import httpx
 from openai import AsyncOpenAI
 
 from benchmark_support.data import load_experiment_dataset
-from experiments.api_baseline import providers
+from experiments.api_baseline import evaluate, evaluation, providers
 from experiments.gepa import optimize
 
 OPENAI_CONFIG = "experiments/api_baseline/configs/optimind_openai.json"
@@ -21,6 +21,40 @@ EXAONE_CONFIG = "experiments/api_baseline/configs/optimind_exaone.json"
 
 
 class OptiMindTests(unittest.TestCase):
+    def test_baseline_and_gepa_seed_use_identical_instructions(self):
+        for name in (OPENAI_CONFIG, EXAONE_CONFIG):
+            config = optimize.read_config(name)
+            prompt = Path(config["prompt_file"]).read_text(encoding="utf-8").strip()
+            seed = evaluation.optimind_solving_instructions(prompt)
+            self.assertEqual(seed, prompt.splitlines()[0])
+            self.assertEqual(providers.task_request("Question", config, prompt),
+                             providers.task_request("Question", config, seed))
+            self.assertEqual(evaluation.task_instructions(config, seed), prompt)
+            self.assertEqual(evaluation.task_instructions(config, "Revised."),
+                             "Revised.\n" + prompt.split("\n", 1)[1])
+
+    def test_baseline_evaluates_test_in_ordered_waves(self):
+        _, splits, _ = load_experiment_dataset("industryor_optimind")
+
+        def wave(client, rows, config, prompt):
+            return [dict(index=row["index"], correct=True, status="correct", latency_seconds=0)
+                    for row in rows]
+
+        with tempfile.TemporaryDirectory() as temporary:
+            target = Path(temporary) / "run"
+            argv = ["--config", OPENAI_CONFIG, "--run-dir", str(target), "--parallelism", "5"]
+            with patch.object(evaluate, "create_client"), patch.object(
+                evaluate, "evaluate_wave", side_effect=wave
+            ) as evaluate_wave, contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(evaluate.main(argv), 0)
+                self.assertEqual(evaluate.main(argv + ["--resume"]), 0)
+            self.assertEqual([len(call.args[1]) for call in evaluate_wave.call_args_list], [5] * 6)
+            predictions = [json.loads(line) for line in (target / "predictions.jsonl").read_text().splitlines()]
+            self.assertEqual([row["index"] for row in predictions], splits["test"])
+            summary = json.loads((target / "summary.json").read_text())
+            self.assertTrue(summary["completed"])
+            self.assertEqual(summary["correct"], 30)
+
     def test_exaone_wire_format_and_grading(self):
         config = optimize.read_config(EXAONE_CONFIG)
         row = {"index": 1, "question": "Find the best feasible objective.", "answer": -12345}

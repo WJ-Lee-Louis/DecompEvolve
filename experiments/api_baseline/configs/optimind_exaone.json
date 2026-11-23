@@ -5,5 +5,5 @@
   "reasoning_effort": "high",
   "max_output_tokens": 65536,
   "timeout_seconds": 900,
-  "prompt_file": "experiments/api_baseline/prompts/baseline.txt"
+  "prompt_file": "experiments/api_baseline/prompts/optimind_baseline.txt"
 }

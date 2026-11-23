@@ -17,6 +17,8 @@ modal run --detach scripts/modal_experiments.py::run --method baseline --provide
 
 마지막 명령은 모델을 실제 호출합니다. 먼저 `--dry-run`으로 설정을 확인하거나 `--split train --limit 3`을 지정해 소규모 실행을 할 수 있습니다. 제공자에 맞는 모델 ID를 `--model`로 지정하세요. OptiMind 풀이 호출의 상한은 문항당 15분(900초)과 생성 토큰 65,536개입니다. 생성 토큰에는 추론 토큰도 포함됩니다. 시간이나 토큰 한도에 도달하면 0점을 기록하고 다음 문항으로 넘어갑니다. 원격 결과는 `decompevolve-results` 볼륨의 `/baseline/<run-id>`에 저장됩니다. `summary.json`에는 전체 및 난이도별 정확도가 들어 있습니다.
 
+OptiMind의 [기본 프롬프트](prompts/optimind_baseline.txt)는 GEPA 초기 후보를 평가할 때도 동일하게 사용합니다. `--parallelism 5`를 지정하면 로컬 또는 Modal Baseline에서 독립적인 문항 요청을 최대 5개씩 동시에 보냅니다. 중단된 병렬 실행을 재개할 때는 같은 값을 사용하세요.
+
 아래 절은 기존 ICML Baseline 설정과 실행 기록을 설명합니다.
 
 ## 비용 없는 사전 확인

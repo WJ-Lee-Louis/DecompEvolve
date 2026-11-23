@@ -68,9 +68,11 @@ def run(method: str, provider: str, run_id: str = "", model: str = "", split: st
         args.append("--dry-run")
     if resume:
         args.append("--resume")
+    if parallelism:
+        args.extend(["--parallelism", str(parallelism)])
     if method == "baseline":
-        if max_metric_calls or reflection_provider or reflection_model or parallelism:
-            raise ValueError("Rollout budget, parallelism, and reflection model options apply to GEPA")
+        if max_metric_calls or reflection_provider or reflection_model:
+            raise ValueError("Rollout budget and reflection model options apply to GEPA")
         args.extend(["--split", split])
         if limit:
             args.extend(["--limit", str(limit)])
@@ -79,8 +81,6 @@ def run(method: str, provider: str, run_id: str = "", model: str = "", split: st
             raise ValueError("GEPA uses the full fixed Train, Validation, and Test splits")
         if max_metric_calls:
             args.extend(["--max-metric-calls", str(max_metric_calls)])
-        if parallelism:
-            args.extend(["--parallelism", str(parallelism)])
         if reflection_provider:
             args.extend(["--reflection-config", configs[reflection_provider]])
         if reflection_model:

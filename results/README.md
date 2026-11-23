@@ -4,12 +4,13 @@
 
 ## OptiMind IndustryOR Baseline
 
-두 모델은 동일한 Test 30문항과 문항당 15분·65,536 생성 토큰 상한으로 평가했습니다.
+모든 실행은 동일한 Test 30문항과 문항당 15분·65,536 생성 토큰 상한으로 평가했습니다.
 
-| 모델 | 추론 강도 | 정확도 | Easy | Medium | Hard | 타임아웃 |
-| --- | --- | ---: | ---: | ---: | ---: | ---: |
-| [K-EXAONE 2.5](baseline/k-exaone_v2.5/20261123T073223.484719Z-15m64k/summary.json) | `high` | 25/30 (83.3%) | 10/11 | 12/15 | 3/4 | 4 |
-| [GPT-5.4 Mini](baseline/gpt-5.4-mini-2026-03-17/20261121T192455.524816Z-15m64k/summary.json) | `medium` | 22/30 (73.3%) | 8/11 | 10/15 | 4/4 | 0 |
+| 모델 | 기본 프롬프트 | 추론 강도 | 정확도 | Easy | Medium | Hard | 타임아웃 |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: |
+| [K-EXAONE 2.5](baseline/k-exaone_v2.5/20261123T073223.484719Z-15m64k/summary.json) | 기존 구조화 지시 | `high` | 25/30 (83.3%) | 10/11 | 12/15 | 3/4 | 4 |
+| [GPT-5.4 Mini](baseline/gpt-5.4-mini-2026-03-17/20261121T192455.524816Z-15m64k/summary.json) | 기존 구조화 지시 | `medium` | 22/30 (73.3%) | 8/11 | 10/15 | 4/4 | 0 |
+| [GPT-5.4 Mini](baseline/gpt-5.4-mini-2026-03-17/20261123T140127.135260Z/summary.json) | [새 기본 프롬프트](../experiments/api_baseline/prompts/optimind_baseline.txt) | `medium` | 20/30 (66.7%) | 9/11 | 7/15 | 4/4 | 0 |
 
 ## 완료 결과 내보내기
 

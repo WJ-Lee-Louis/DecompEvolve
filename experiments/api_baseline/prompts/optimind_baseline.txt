@@ -1,0 +1,4 @@
+Solve the given optimization problem and report the optimal objective value.
+Do not use external tools or execute code.
+If you can justify an integer optimum, write exactly 'Answer: <signed integer>' on the final nonempty line, without commas, units, decimals, or Markdown.
+Do not round or truncate a noninteger optimum to fit this format. If you cannot justify an integer optimum, state that instead.

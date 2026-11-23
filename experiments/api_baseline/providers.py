@@ -6,7 +6,7 @@ from pathlib import Path
 
 from openai import APITimeoutError
 
-from .evaluation import OUTPUT_CONTRACT, build_request, evaluate_one, parse_answer
+from .evaluation import build_request, evaluate_one, parse_answer, task_instructions
 
 EXAONE_URL = "https://api.exaone.ai/v1"
 KEY_NAMES = {"openai": "OPENAI_API_KEY", "exaone": "EXAONE_API_KEY"}
@@ -90,7 +90,7 @@ def exaone_request(config, instructions, text):
 
 def task_request(question, config, prompt):
     if config.get("provider") == "exaone":
-        return exaone_request(config, prompt.strip() + "\n\n" + OUTPUT_CONTRACT, question)
+        return exaone_request(config, task_instructions(config, prompt), question)
     return build_request(question, config, prompt)
 
 

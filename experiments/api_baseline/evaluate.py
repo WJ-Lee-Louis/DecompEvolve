@@ -11,7 +11,7 @@ from benchmark_support.data import ROOT, digest, load_experiment_dataset
 from benchmark_support.environment import load_environment
 
 from .evaluation import summarize
-from .providers import create_client, evaluate_task, task_request, validate_config
+from .providers import create_client, evaluate_task, evaluate_wave, task_request, validate_config
 
 PAUSED = 75
 
@@ -22,6 +22,7 @@ def main(argv=None, checkpoint=None, deadline=None):
     parser.add_argument("--model", help="Override the model ID within the selected provider")
     parser.add_argument("--split", choices=["train", "val", "test"], default="test")
     parser.add_argument("--limit", type=int, help="Use the first N selected IDs for a smoke test")
+    parser.add_argument("--parallelism", type=int, default=1, help="Concurrent per-question requests")
     parser.add_argument("--dry-run", action="store_true", help="Validate locally; no API calls or run files")
     parser.add_argument("--run-dir", help="Explicit output directory; default runs/baseline/<model>/<UTC timestamp>")
     parser.add_argument("--prompt-file", help="Evaluate a saved prompt using the selected model and output contract")
@@ -38,6 +39,8 @@ def main(argv=None, checkpoint=None, deadline=None):
         rows, splits, split_manifest = load_experiment_dataset(dataset_name)
     except (ValueError, KeyError) as exc:
         parser.error(str(exc))
+    if args.parallelism < 1 or (args.parallelism > 1 and "provider" not in config):
+        parser.error("Use positive parallelism; multiple requests require an explicit provider")
     prompt = (ROOT / config["prompt_file"]).read_text(encoding="utf-8")
     wanted = set(splits[args.split])
     selected = [row for row in rows if row["index"] in wanted]
@@ -56,13 +59,15 @@ def main(argv=None, checkpoint=None, deadline=None):
     }
     if "provider" in config:
         spec["provider_sha256"] = digest(Path(__file__).with_name("providers.py"))
+    if args.parallelism > 1:
+        spec["parallelism"] = args.parallelism
     fingerprint = hashlib.sha256(json.dumps(spec, sort_keys=True).encode()).hexdigest()
     if args.dry_run:
         print(json.dumps({"dry_run": True, "model": config["model"], "provider": provider,
                           "dataset": dataset_name, "split": args.split,
                           "questions": len(selected), "reasoning_effort": config["reasoning_effort"],
                           "max_output_tokens": config["max_output_tokens"], "timeout_seconds": config["timeout_seconds"],
-                          "tools": [], "tool_choice": "none",
+                          "tools": [], "tool_choice": "none", "parallelism": args.parallelism,
                           "fingerprint": fingerprint, "api_calls": 0}, indent=2))
         return 0
     load_environment()
@@ -101,28 +106,32 @@ def main(argv=None, checkpoint=None, deadline=None):
         run_dir.mkdir(parents=True, exist_ok=False)
         (run_dir / "manifest.json").write_text(json.dumps({"fingerprint": fingerprint, **spec}, indent=2) + "\n", encoding="utf-8")
     seen = {r["index"] for r in records}
+    pending = [row for row in selected if row["index"] not in seen]
     print("Run directory:", run_dir, flush=True)
     failed = False
     paused = False
     try:
         with (run_dir / "predictions.jsonl").open("a", encoding="utf-8") as handle:
-            for row in selected:
-                if row["index"] in seen:
-                    continue
+            for start in range(0, len(pending), args.parallelism):
                 if deadline is not None and monotonic() + config["timeout_seconds"] > deadline:
                     paused = True
                     break
-                record = evaluate_task(client, row, config, prompt)
-                if "difficulty" in row:
-                    record["difficulty"] = row["difficulty"]
-                handle.write(json.dumps(record, ensure_ascii=False) + "\n")
-                handle.flush()
-                records.append(record)
-                print(f"[{len(records)}/{len(selected)}] index={row['index']} {record['status']}", flush=True)
-                if checkpoint:
-                    checkpoint()
-                if record["status"] == "api_error":
-                    failed = True
+                wave = pending[start:start + args.parallelism]
+                if args.parallelism == 1:
+                    evaluated = [evaluate_task(client, wave[0], config, prompt)]
+                else:
+                    evaluated = evaluate_wave(client, wave, config, prompt)
+                for row, record in zip(wave, evaluated):
+                    if "difficulty" in row:
+                        record["difficulty"] = row["difficulty"]
+                    handle.write(json.dumps(record, ensure_ascii=False) + "\n")
+                    handle.flush()
+                    records.append(record)
+                    print(f"[{len(records)}/{len(selected)}] index={row['index']} {record['status']}", flush=True)
+                    if checkpoint:
+                        checkpoint()
+                    failed |= record["status"] == "api_error"
+                if failed:
                     print("Stopped after API error; check error_type/http_status in predictions.jsonl.", file=sys.stderr)
                     break
     except KeyboardInterrupt:
