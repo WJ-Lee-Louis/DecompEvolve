@@ -19,7 +19,8 @@ DecompEvolve/
 │   └── industryor_optimind/  # OptiMind 교정판 99문항, 정수 정답 CSV 85문항
 ├── reports/
 ├── scripts/            # 데이터 분할 및 Modal 실행
-├── runs/               # 로컬 실행 결과, Git 제외
+├── runs/               # 로컬 원본과 재개용 체크포인트
+├── results/            # Git으로 공유하는 완료 결과
 └── tests/              # baseline 실행·채점, 데이터 분할, 환경 설정 검증
 ```
 
@@ -55,6 +56,8 @@ python -m experiments.api_baseline.evaluate --config experiments/api_baseline/co
 ```
 
 이전 ICML 실험은 기존 모델별 설정으로 재현할 수 있습니다. [ICML Baseline 결과 보고서](experiments/api_baseline/docs/261109_baseline_results.md)
+
+OptiMind 완료 결과와 내보내기 방법은 [공유용 실험 결과](results/README.md)에서 확인할 수 있습니다.
 
 ## 로컬 검증
 

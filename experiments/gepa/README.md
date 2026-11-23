@@ -20,3 +20,5 @@ Modal 실행은 최대 24시간입니다. 남은 시간으로 안전하게 다�
 Baseline과 GEPA의 풀이 호출은 같은 모델 설정 파일에서 시간과 토큰 상한을 읽습니다. 이전 상한으로 시작한 GEPA 실행은 그 당시 설정으로 재개할 수 있습니다. 새 상한으로 비교할 때는 Baseline과 GEPA를 각각 새 실행 ID로 시작하세요.
 
 원격 결과는 `decompevolve-results` 볼륨의 `/gepa/<run-id>`에 저장됩니다. `best_prompt.txt`는 확정 프롬프트, `optimization.json`은 후보와 Validation 결과, `rollouts.jsonl`과 `reflections.jsonl`은 실행 기록, `test/summary.json`은 전체 및 난이도별 Test 성능입니다. 해석이 필요한 문항도 고정 분할에 포함되어 있으며, 정확도는 데이터셋 정답과의 일치율입니다.
+
+Git으로 공유할 때는 다운로드한 완료 실행 폴더를 `python scripts/export_result.py`에 전달하세요. [공유 결과 내보내기](../../results/README.md#완료-결과-내보내기)

@@ -7,5 +7,6 @@ __pycache__/
 *.egg-info/
 build/
 dist/
+# Live runs and checkpoints stay local. Export completed results to results/.
 runs/**
 !runs/.gitkeep
