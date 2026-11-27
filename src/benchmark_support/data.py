@@ -18,8 +18,13 @@ def load_experiment_dataset(name):
     dataset = {"icml": DATASET, "industryor_optimind": OPTIMIND_DATASET}[name]
     directory = dataset.parent / "splits"
     rows = load_dataset(dataset)
-    splits = load_splits(rows, directory=directory, dataset=dataset)
     manifest = json.loads((directory / "manifest.json").read_text(encoding="utf-8"))
+    if name == "industryor_optimind":
+        excluded = {item["index"] for item in manifest.get("excluded_items", [])}
+        if not excluded <= {row["index"] for row in rows}:
+            raise ValueError("OptiMind exclusions contain unknown dataset IDs")
+        rows = [row for row in rows if row["index"] not in excluded]
+    splits = load_splits(rows, directory=directory, dataset=dataset)
     if name == "industryor_optimind":
         difficulty_file = OPTIMIND / "difficulty.csv"
         if manifest["difficulty_sha256"] != digest(difficulty_file):

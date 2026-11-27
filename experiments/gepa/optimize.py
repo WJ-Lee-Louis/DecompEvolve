@@ -15,7 +15,7 @@ from experiments.api_baseline import evaluation, providers
 
 DIFFICULTIES = ("Easy", "Medium", "Hard")
 COMPONENT = "instructions"
-DEFAULT_METRIC_CALLS = 600
+DEFAULT_METRIC_CALLS = 1200
 DEFAULT_PARALLELISM = 4
 REFLECTION_TIMEOUT = 60
 REFLECTION_MAX_TOKENS = 8192
@@ -137,7 +137,9 @@ def optimize_prompt(run_dir, spec, train, val, checkpoint, deadline):
         task_client = stack.enter_context(providers.create_client(config))
         reflection_client = stack.enter_context(providers.create_client(reflection_config))
         parallelism = spec["parallelism"]
-        adapter = OptiMindAdapter(task_client, config, run_dir, spec["max_metric_calls"], parallelism, checkpoint)
+        adapter_args = dict(client=task_client, config=config, run_dir=run_dir,
+                            max_calls=spec["max_metric_calls"], parallelism=parallelism, checkpoint=checkpoint)
+        sampler = DifficultySampler(train, spec["seed"])
         reflection_error = None
         paused = False
         validation_time = ceil(len(val) / parallelism) * config["timeout_seconds"]
@@ -149,15 +151,45 @@ def optimize_prompt(run_dir, spec, train, val, checkpoint, deadline):
         if not has_state and deadline is not None and monotonic() + validation_time > deadline:
             return evaluate.PAUSED
 
-        def reflection_lm(prompt):
+        def reflection_lm(prompt, purpose="mutation"):
             try:
                 text, usage = providers.reflect(reflection_client, reflection_config, prompt)
             except RuntimeError as exc:
                 status = "limit" if isinstance(exc, providers.ReflectionLimit) else "error"
-                append_log(run_dir / "reflections.jsonl", {"input": prompt, "status": status, "error": str(exc)})
+                append_log(run_dir / "reflections.jsonl", {"purpose": purpose, "input": prompt, "status": status, "error": str(exc)})
                 raise
-            append_log(run_dir / "reflections.jsonl", {"input": prompt, "output": text, "usage": usage, "status": "completed"})
+            append_log(run_dir / "reflections.jsonl", {"purpose": purpose, "input": prompt, "output": text, "usage": usage, "status": "completed"})
             return text
+
+        if "decompevolve" in spec:
+            from gepa.core.data_loader import ListDataLoader
+            from experiments.decompevolve.curriculum import Curriculum, DiagnosticAdapter
+
+            loader = ListDataLoader(train)
+            author = None
+            if spec["decompevolve"]["synthesis"]:
+                from experiments.decompevolve.author import AUTHOR_EFFORT, AUTHOR_TIMEOUT, NanoAuthor, OUTPUT_LIMIT
+                author_config = dict(reflection_config, max_output_tokens=OUTPUT_LIMIT, reasoning_effort=AUTHOR_EFFORT, timeout_seconds=AUTHOR_TIMEOUT)
+                author_client = stack.enter_context(providers.create_client(author_config))
+                author = NanoAuthor(run_dir, lambda prompt: providers.reflect(author_client, author_config, prompt),
+                                    spec["decompevolve"]["author_token_budget"], checkpoint)
+                iteration_time += 2 * author_config["timeout_seconds"]
+            sampler = Curriculum(train, spec["seed"], run_dir, loader, author)
+            train = loader
+            def diagnostic_lm(prompt):
+                nonlocal reflection_error
+                try:
+                    return reflection_lm(prompt, "diagnosis")
+                except providers.ReflectionLimit:
+                    raise
+                except RuntimeError as exc:
+                    reflection_error = exc
+                    raise
+
+            adapter = DiagnosticAdapter(**adapter_args, sampler=sampler, ask=diagnostic_lm)
+            iteration_time += len(DIFFICULTIES) * reflection_config["timeout_seconds"]
+        else:
+            adapter = OptiMindAdapter(**adapter_args)
 
         class LimitedReflection:
             def __init__(self):
@@ -200,7 +232,7 @@ def optimize_prompt(run_dir, spec, train, val, checkpoint, deadline):
             valset=val,
             adapter=adapter,
             reflection_strategy=LimitedReflection(),
-            batch_sampler=DifficultySampler(train, spec["seed"]),
+            batch_sampler=sampler,
             skip_perfect_score=True,
             candidate_selection_strategy="pareto",
             frontier_type="instance",
@@ -231,9 +263,9 @@ def optimize_prompt(run_dir, spec, train, val, checkpoint, deadline):
             checkpoint()
 
 
-def main(argv=None, checkpoint=None, deadline=None):
+def main(argv=None, checkpoint=None, deadline=None, decompevolve=False):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", required=True, help="OptiMind Baseline task config")
+    parser.add_argument("--config", default="experiments/api_baseline/configs/optimind_nano.json", help="OptiMind Baseline task config")
     parser.add_argument("--model", help="Override the task model ID within its provider")
     parser.add_argument("--reflection-config", help="Optional separate model/provider config for reflection")
     parser.add_argument("--reflection-model", help="Override the reflection model ID within its provider")
@@ -243,6 +275,9 @@ def main(argv=None, checkpoint=None, deadline=None):
     parser.add_argument("--run-dir")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--resume", action="store_true")
+    if decompevolve:
+        parser.add_argument("--author-token-budget", type=int)
+        parser.add_argument("--diagnosis-only", action="store_true", help="Disable synthetic practice")
     args = parser.parse_args(argv)
     try:
         config = read_config(args.config, args.model)
@@ -262,13 +297,37 @@ def main(argv=None, checkpoint=None, deadline=None):
     minimum_budget = 2 * len(val) + 2 * len(DIFFICULTIES)
     if args.max_metric_calls < minimum_budget:
         parser.error(f"Use at least {minimum_budget} metric calls for the seed validation and one full iteration")
+    method = {}
+    if decompevolve:
+        from experiments.decompevolve import curriculum, diagnosis
+
+        if any(c["model"] != "gpt-5.4-nano" or c.get("provider") != "openai"
+               for c in (config, reflection_config)):
+            parser.error("DecompEvolve uses gpt-5.4-nano for all model calls")
+        method["decompevolve"] = {
+            "synthesis": not args.diagnosis_only,
+            "code_sha256": {Path(m.__file__).name: digest(m.__file__) for m in (curriculum, diagnosis)},
+        }
+        if not args.diagnosis_only:
+            from experiments.decompevolve import author
+            if args.author_token_budget is None:
+                args.author_token_budget = 300000
+            if args.author_token_budget <= 0:
+                parser.error("nano author requires synthesis and a positive --author-token-budget")
+            method["decompevolve"].update(author="nano", author_token_budget=args.author_token_budget,
+                                          author_reasoning_effort=author.AUTHOR_EFFORT, author_max_output_tokens=author.OUTPUT_LIMIT,
+                                          author_timeout_seconds=author.AUTHOR_TIMEOUT)
+            method["decompevolve"]["code_sha256"]["author.py"] = digest(author.__file__)
+        elif args.author_token_budget is not None:
+            parser.error("--author-token-budget applies only to full DecompEvolve")
     if args.dry_run:
         print(json.dumps({
-            "dry_run": True, "api_calls": 0, "task_model": config["model"],
+            **method, "dry_run": True, "api_calls": 0, "task_model": config["model"],
             "task_provider": config.get("provider", "openai"), "reflection_model": reflection_config["model"],
             "reflection_provider": reflection_config.get("provider", "openai"), "counts": split_manifest["counts"],
             "difficulty_counts": split_manifest["difficulty_counts"],
-            "train_batch": list(DIFFICULTIES), "max_metric_calls": args.max_metric_calls,
+            "train_batch": list(DIFFICULTIES),
+            "max_synthetic_replacements": int(decompevolve and not args.diagnosis_only), "max_metric_calls": args.max_metric_calls,
             "parallelism": args.parallelism, "task_timeout_seconds": config["timeout_seconds"],
             "task_max_output_tokens": config["max_output_tokens"],
             "reflection_timeout_seconds": REFLECTION_TIMEOUT, "reflection_max_output_tokens": REFLECTION_MAX_TOKENS,
@@ -279,6 +338,7 @@ def main(argv=None, checkpoint=None, deadline=None):
         parser.error("--run-dir is required for a paid run")
     run_dir = (ROOT / args.run_dir).resolve()
     spec = {
+        **method,
         "task": config, "reflection": reflection_config, "seed": args.seed,
         "max_metric_calls": args.max_metric_calls, "parallelism": args.parallelism, "split_manifest": split_manifest,
         "split_ids": splits,

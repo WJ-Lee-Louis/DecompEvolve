@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEPA와 DecompEvolve | LP 오답이 다음 지침과 문제로 이어지는 과정</title>
+<style>
+:root{--ink:#192d35;--muted:#495e65;--line:#c8d3cf;--paper:#f6f6f0;--green:#006852;--tint:#e5f3eb;--blue:#244e73;--red:#963e29}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.75 Inter,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;word-break:keep-all;overflow-wrap:anywhere}main,header,footer{width:min(1080px,92%);margin:auto}header{border-top:5px solid var(--ink);margin-top:34px;padding:24px 0;border-bottom:1px solid var(--line)}h1,h2,h3,p,figure,blockquote{margin:0}h1,h2,h3{line-height:1.28;letter-spacing:-.04em}h1{font-size:clamp(2rem,5vw,3.9rem);margin:7px 0 15px}h2{font-size:clamp(1.55rem,3vw,2.25rem);margin-bottom:12px}h3{font-size:1.18rem;margin:0 0 8px}header p,section>p{max-width:85ch}header b,figcaption,.small{color:var(--muted)}section{padding:32px 0;border-bottom:1px solid var(--line)}p+p{margin-top:9px}.switch{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 12px}button{font:inherit;font-weight:700;border:1px solid #8da29b;color:var(--ink);background:white;border-radius:6px;padding:6px 13px;cursor:pointer}button[aria-pressed=true]{background:var(--ink);color:white}button:focus-visible{outline:3px solid #b25e08;outline-offset:2px}.flow{list-style:none;padding:0;margin:12px 0;display:grid;gap:15px}.flow li{position:relative;display:grid;grid-template-columns:minmax(155px,24%) 1fr;gap:14px;align-items:center;border:1px solid var(--line);border-left:5px solid var(--blue);background:white;border-radius:6px;padding:10px 16px}.flow li+li:before{content:"↓";position:absolute;left:24px;bottom:100%;line-height:15px;color:var(--muted)}.flow strong{color:var(--blue)}.flow .extra{background:var(--tint);border-color:#88b7a6;border-left-color:var(--green)}.flow .extra strong,.green{color:var(--green)}[hidden]{display:none!important}.pair{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:18px 0}.card,figure{background:white;border:1px solid var(--line);padding:18px 20px;border-radius:8px}.math{font:1.1rem/1.8 Georgia,"Times New Roman",serif;color:var(--blue)}figure svg{display:block;width:100%;max-height:230px}figcaption,.small{font-size:.93rem}blockquote{border-left:4px solid var(--green);padding:9px 15px;background:var(--tint);margin:12px 0}table{border-collapse:collapse;width:100%;margin:15px 0;text-align:left}th,td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}thead{background:#e8eeec}tbody th{width:22%;font-weight:700}.steps{padding-left:1.5em}.steps li{padding-left:.3em;margin:.45em 0}code{font-size:.88em;overflow-wrap:anywhere}footer{padding:22px 0 44px}svg text{font-family:Inter,"Apple SD Gothic Neo",sans-serif;font-size:13px;fill:var(--ink)}@media(max-width:680px){.pair{grid-template-columns:1fr}.flow li{grid-template-columns:1fr;gap:2px}th,td{padding:7px}.card,figure{padding:15px}section{padding:25px 0}}@media print{body{background:white;font-size:10pt}header{margin-top:0}.switch{display:none}.card,figure,tr,.flow li{break-inside:avoid}}
+</style>
+</head><body>
+<header><b>GEPA와 DecompEvolve</b><h1>LP 오답은 어떻게 다음 지침과<br>연습문제가 되는가?</h1>
+<p>GEPA가 개선하는 대상은 모델에 건네는 <strong>풀이 지침(프롬프트)</strong>입니다. DecompEvolve는 지침을 수정할 때 오답의 근거를 구조화하고, 확인된 약점이 다시 드러나는 훈련 문제를 만듭니다. 두 역할이 어떻게 연결되는지 2변수 선형계획(LP)으로 살펴봅니다.</p></header>
+<main>
+<section><h2>GEPA의 한 반복에 두 경로가 추가됩니다</h2>
+<p>DecompEvolve에서는 풀이·진단·피드백·출제에 같은 <strong>gpt-5.4-nano</strong>를 역할별로 호출합니다. 점수 계산과 후보 선택은 프로그램이 수행합니다. 아래에서 네 조건을 선택해 훈련과 시험에 사용되는 경로를 비교할 수 있습니다.</p>
+<div class="switch" role="group" aria-label="실험 조건 선택"><button type="button" data-view="seed" aria-pressed="false" aria-controls="flow">① Base prompt</button><button type="button" data-view="gepa" aria-pressed="false" aria-controls="flow">② GEPA</button><button type="button" data-view="diag" aria-pressed="false" aria-controls="flow">③ GEPA + 진단</button><button type="button" data-view="full" aria-pressed="true" aria-controls="flow">④ DecompEvolve</button></div>
+<ol class="flow" id="flow">
+<li data-path="seed" hidden><strong>기본 지침 · 풀이 LLM</strong><span>초기 지침을 그대로 확정하고 원본 Test 30문항을 풉니다. Train과 Validation 호출은 없습니다.</span></li>
+<li><strong>후보 선택 · 프로그램</strong><span>처음에는 기본 지침을 씁니다. 이후에는 검증 문항마다 잘 풀었던 후보들을 고려해 수정할 지침 하나(부모)를 고릅니다. 이것이 문항별 Pareto 선택입니다.</span></li>
+<li><strong>풀이 LLM → 채점기</strong><span>부모 지침으로 훈련 3문항을 풉니다. 채점기는 마지막 줄의 정수 답을 읽고 참조 최적값과 일치하면 1점, 그 밖에는 0점을 줍니다. 3/3이면 수정을 건너뛰고 다음 반복으로 갑니다.</span></li>
+<li class="extra" data-path="diagnosis"><strong>＋ 오류 진단 LLM</strong><span>오답의 공개 풀이와 문제 조건을 대조합니다. 오류 단계, 두 인용문, 불일치 이유, 재사용할 점검 지침을 피드백 LLM에 넘깁니다.</span></li>
+<li><strong>피드백 LLM → 자식 지침</strong><span>기존 지침, 문제, 공개 풀이, 채점 결과와 참조 답을 읽고 수정본(자식)을 제안합니다. DecompEvolve에서는 앞 단계의 진단도 함께 읽습니다.</span></li>
+<li><strong>풀이 LLM → 후보 평가</strong><span>자식도 부모와 <strong>동일한 3문항</strong>을 풉니다. 총점이 엄격히 오른 자식만 원본 검증 20문항으로 평가합니다. 후보별 성과와 부모–자식 관계를 기록해 다음 부모 선택에 씁니다.</span></li>
+<li class="extra" data-path="author"><strong>＋ 출제 nano → solver → 이후 배치 ↺</strong><span>원본 오답의 인용과 점검 지침을 읽은 nano가 새 LP 구조를 제안합니다. solver가 정답과 목표 실수 적용값을 검증한 문항이 이후 배치의 최대 한 자리에 들어갑니다.</span></li>
+</ol><p class="small">네 조건은 모두 확정한 지침으로 원본 시험 30문항을 풉니다. 합성 문제는 훈련에만 들어갑니다.</p></section>
+
+<section><h2>같은 0점이라도 원인은 다릅니다</h2>
+<p>다음은 설명용 원본 문제입니다. “두 제품 A와 B를 합해 최대 8단위까지 생산할 수 있다. <strong>A 생산량은 B 생산량 이하여야 한다.</strong> 단위 이익은 각각 5와 3이며 생산량은 연속값이다. 최대 이익은 얼마인가?”</p>
+<div class="pair"><article class="card"><h3>문장을 LP로 옮기면</h3><p>A와 B의 생산량을 각각 <i>x</i>, <i>y</i>라 놓습니다.</p><p class="math">maximize　5x + 3y<br>x + y ≤ 8<br>x ≤ y<br>x, y ≥ 0</p><p>이익을 <strong>3(x+y) + 2x</strong>로 쓰면 상한이 보입니다. 두 제약을 함께 적용하면 x ≤ 4이므로 이익은 32 이하입니다. (4, 4)가 이 값을 달성합니다.</p></article>
+<figure><svg viewBox="0 0 315 240" role="img" aria-labelledby="graph-title graph-desc"><title id="graph-title">비례 제약 유무에 따른 가능 영역</title><desc id="graph-desc">전체 삼각형 중 x가 y 이하인 왼쪽 위 부분만 가능하다. 참 최적점은 (4,4)이고, 비례 조건을 빠뜨리면 (8,0)이 선택된다.</desc>
+<path d="M42 205 V29 L218 205 Z" fill="#f8e7df"/><path d="M42 205 V29 L130 117 Z" fill="#a8d9c1"/>
+<path d="M42 29 L218 205" fill="none" stroke="#42617b" stroke-width="2"/><path d="M42 205 L203 44" stroke="#007153" stroke-width="2"/><path d="M42 13 V205 H281" fill="none" stroke="#2c3940" stroke-width="2"/>
+<circle cx="130" cy="117" r="5" fill="#006852"/><circle cx="218" cy="205" r="5" fill="#973d25"/><text x="138" y="118">(4, 4) · 32</text><text x="185" y="226">(8, 0) · 40</text><text x="10" y="32">8</text><text x="26" y="222">0</text><text x="17" y="14">y</text><text x="285" y="209">x</text><text x="196" y="40">x = y</text><text x="58" y="60">x + y = 8</text></svg>
+<figcaption>초록 영역이 모든 제약을 만족합니다. x ≤ y를 빼면 주황 영역까지 허용되어 더 높은 이익 40이 가능해 보입니다.</figcaption></figure></div>
+<h3>채점 결과에서 점검 지침까지</h3>
+<table><thead><tr><th scope="col">담당</th><th scope="col">이 예시에서 오가는 정보</th></tr></thead><tbody>
+<tr><th scope="row">풀이 LLM</th><td>“총생산량만 8 이하면 된다. A의 이익이 더 크므로 (8, 0)을 택한다.” 최종 응답은 <code>Answer: 40</code>.</td></tr>
+<tr><th scope="row">채점기</th><td>제출값 40, 참조값 32 → 0점. 이 비교에서 오류 위치까지 알 수는 없습니다.</td></tr>
+<tr><th scope="row">진단 LLM</th><td>문제의 “A 생산량은 B 생산량 이하여야 한다”와 풀이의 “총생산량만 8 이하면 된다”를 인용합니다. 첫 오류는 <strong>제약식 정의</strong>, 구체적 실수는 <strong>두 변수의 비례 제약 누락</strong>입니다. 5 × 8 = 40이라는 계산 자체는 맞습니다.</td></tr>
+<tr><th scope="row">피드백 LLM</th><td>진단을 읽고 아래와 같은 지침을 자식 후보에 제안할 수 있습니다. 이 지침의 채택 여부는 다시 문제를 풀어 결정합니다.</td></tr>
+</tbody></table><blockquote>두 수량을 비교하는 문장마다 부등식을 하나 쓰고, 구한 해를 그 부등식에 대입해 방향과 충족 여부를 확인하라.</blockquote>
+<p class="small">위 응답과 지침은 예시입니다. 실제 진단 코드는 인용이 각각 문제와 공개 풀이에 있는지 검사합니다. “Answer: 40”만 보이면 제약 누락과 계산 실수를 구별할 근거가 없으므로 원인 판단을 보류합니다.</p></section>
+
+<section><h2>진단 범위와 합성 범위는 어디까지인가?</h2>
+<p>진단은 <strong>가장 먼저 근거를 댈 수 있는 오류</strong>를 고릅니다. 뒤에서 잘못된 최적해가 나왔더라도 앞에서 제약을 빠뜨렸다면 제약식 오류로 기록합니다. 지침은 폭넓게 고칠 수 있고, 새 문제는 구현된 다섯 가지 실수와 일치할 때 생성합니다.</p>
+<table><thead><tr><th>진단 단계</th><th>풀이에서 확인할 질문</th><th>현재 합성하는 실수</th></tr></thead><tbody>
+<tr><th>수량·단위</th><td>자원 한도와 소비 계수의 단위가 맞는가?</td><td>시간과 분의 환산 누락</td></tr>
+<tr><th>의사결정변수</th><td>제품별·기간별로 따로 정할 양을 한 변수에 합쳤는가?</td><td>진단과 지침 수정까지</td></tr>
+<tr><th>변수 범위</th><td>개수여야 할 변수에 분수를 허용했는가?</td><td>정수 조건의 연속 완화</td></tr>
+<tr><th>목적식</th><td>최대화할 값과 계수가 요구한 이익을 나타내는가?</td><td>순이익 대신 매출을 최대화</td></tr>
+<tr><th>제약식</th><td>모든 조건을 옮겼는가? 부등호 방향과 연결 관계가 맞는가?</td><td>두 생산량의 비례 제약 누락</td></tr>
+<tr><th>가능성·최적성</th><td>후보 해가 가능한가? 더 좋은 혼합 생산 계획이 있는가?</td><td>한 제품만 쓰는 해만 검토</td></tr>
+<tr><th>산술</th><td>올바른 식과 해에 수를 대입한 뒤 계산이 틀렸는가?</td><td>진단과 지침 수정까지</td></tr>
+</tbody></table><p class="small">답안 형식 오류와 시간 초과 등 실행 문제는 따로 기록합니다. 수학적 원인을 특정할 수 없는 오답에서는 합성 대상을 정하지 않습니다.</p></section>
+
+<section><h2>생산량 문제의 오답을 조달 비용 문제로 옮기면</h2>
+<p>④에서는 출제 nano가 원본의 “A와 B의 관계를 빠뜨렸다”는 진단을 읽습니다. 같은 실수를 다른 맥락에서 시험하는 방법은 비율을 전체 물량의 비중으로 표현하는 것입니다. 아래는 설계를 설명하기 위한 예시입니다.</p>
+<div class="pair"><article class="card"><h3>출제 nano가 제안할 수 있는 모형</h3><p>일반 공급처와 인증 공급처에서 합계 12톤 이상을 조달합니다. 가격은 톤당 각각 2와 5입니다. 인증 물량은 총조달량의 1/3 이상이어야 합니다. 두 곳 모두 최대 12톤까지 연속량으로 주문할 수 있습니다.</p>
+<p class="math">minimize　2x + 5y<br>x + y ≥ 12<br><strong>3y ≥ x + y</strong><br>0 ≤ x, y ≤ 12</p></article>
+<article class="card"><h3>solver가 판단하는 두 가지</h3><p><strong>정답은 36.</strong> 합계가 12톤 이상이므로 인증 물량 y는 최소 4톤입니다. 비용은 2(x+y)+3y ≥ 36이고 (8, 4)로 달성합니다.</p><p><strong>비율을 생략하면 24.</strong> 일반 공급처에서만 12톤을 살 수 있습니다. 목표 실수가 답을 바꾸므로 이 문항을 채택합니다. 값이 같다면 새 대상이나 원본 문항으로 돌아갑니다.</p></article></div>
+<p>프로그램은 검증한 수량·단위·제약에서 문제 문장을 만듭니다. 풀이 nano는 그 문장과 지침만 받아 도구 없이 풉니다. 만약 24라고 답해도 숫자만 보고 원인을 단정하지 않습니다. 풀이에 비율을 빠뜨린 근거가 있는지 다시 살펴봅니다.</p></section>
+<section><h2>어떤 결과가 설계를 뒷받침할까요?</h2><p>①은 기본 지침의 Test 성능을 측정합니다. ②~④는 같은 훈련 34문항·검증 20문항, 각각 최대 1,200회의 풀이 예산을 사용합니다. 합성 문항을 푼 호출도 여기에 포함하며, 진단·지침 수정·출제 비용은 따로 셉니다. 마지막에는 모두 같은 원본 Test 30문항의 정답 수를 비교합니다.</p>
+<p><strong>④와 ③의 차이</strong>가 주 비교입니다. 합성 문제에서 얻은 피드백이 실제로 새로운 원본 문제에도 통하는지 봅니다.</p></section>
+</main><footer><a href="DecompEvolve_동작구조와_제어알고리즘.html">후보 선택·출제 검증·실험 통제의 기술 설명</a></footer>
+<script>
+const controls = document.querySelectorAll('[data-view]');
+for (const control of controls) {
+  control.addEventListener('click', () => {
+    const mode = control.dataset.view;
+    for (const step of document.querySelectorAll('#flow li')) {
+      const path = step.dataset.path;
+      const visible = path === 'seed' ? mode === 'seed'
+        : path === 'author' ? mode === 'full'
+        : path === 'diagnosis' ? mode === 'diag' || mode === 'full'
+        : mode !== 'seed';
+      step.hidden = !visible;
+    }
+    for (const item of controls) item.setAttribute('aria-pressed', String(item === control));
+  });
+}
+</script></body></html>

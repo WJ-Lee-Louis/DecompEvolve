@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="866" height="392" viewBox="0 0 866 392" role="img" aria-labelledby="title desc">
+<title id="title">DecompEvolve: diagnostic feedback and failure-guided practice in GEPA</title>
+<desc id="desc">GEPA selects a parent, solves and scores a training batch, reflects, compares the child on the same batch, and updates the validation frontier after strict improvement. DecompEvolve grounds diagnoses in the visible solution and problem conditions. Diagnoses inform the current mutation. Supported original failures seed exact-verified LP or IP practice in later batches. The best validation prompt receives a held-out test.</desc>
+<defs>
+<marker id="base" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L7 3.5 L0 7 Z" fill="#29445b"/></marker>
+<marker id="diagnosis" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L7 3.5 L0 7 Z" fill="#006b63"/></marker>
+<marker id="synthesis" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L7 3.5 L0 7 Z" fill="#90460d"/></marker>
+</defs><rect width="866" height="392" fill="white"/><g font-family="Arial, Helvetica, sans-serif" fill="#172f40">
+<text x="15" y="21" font-size="17" font-weight="700" fill="#172f40" text-anchor="start">GEPA prompt search</text>
+<path d="M776 61 V38 H81 V60" stroke="#29445b" stroke-width="1.65" fill="none" stroke-linejoin="round" marker-end="url(#base)"/>
+<text x="432" y="30" font-size="13" font-weight="400" fill="#29445b" text-anchor="middle">Updated instance-wise frontier and candidate lineage</text>
+<rect x="15" y="62" width="132" height="74" rx="6" fill="#f2f5f8" stroke="#899ca8" stroke-width="1.25"/>
+<text x="25" y="84" font-size="14" font-weight="700" fill="#172f40" text-anchor="start">Select parent</text>
+<text x="25" y="106" font-size="12.8" font-weight="400" fill="#172f40" text-anchor="start">Sample from the</text>
+<text x="25" y="123" font-size="12.8" font-weight="400" fill="#172f40" text-anchor="start">validation frontier</text>
+<rect x="180" y="62" width="143" height="74" rx="6" fill="#f2f5f8" stroke="#899ca8" stroke-width="1.25"/>
+<text x="190" y="84" font-size="14" font-weight="700" fill="#172f40" text-anchor="start">Solve &amp; score</text>
+<text x="190" y="106" font-size="12.8" font-weight="400" fill="#172f40" text-anchor="start">Task LLM · 3 items</text>
+<text x="190" y="123" font-size="12.8" font-weight="400" fill="#172f40" text-anchor="start">Exact-match scorer</text>
+<rect x="359" y="62" width="136" height="74" rx="6" fill="#f2f5f8" stroke="#899ca8" stroke-width="1.25"/>
+<text x="369" y="84" font-size="14" font-weight="700" fill="#172f40" text-anchor="start">Revise prompt</text>
+<text x="369" y="106" font-size="12.8" font-weight="400" fill="#172f40" text-anchor="start">Reflection LLM</text>
+<text x="369" y="123" font-size="12.8" font-weight="400" fill="#172f40" text-anchor="start">proposes a child</text>
+<rect x="532" y="62" width="133" height="74" rx="6" fill="#f2f5f8" stroke="#899ca8" stroke-width="1.25"/>
+<text x="542" y="84" font-size="14" font-weight="700" fill="#172f40" text-anchor="start">Compare</text>
+<text x="542" y="106" font-size="12.8" font-weight="400" fill="#172f40" text-anchor="start">Re-score child on</text>
+<text x="542" y="123" font-size="12.8" font-weight="400" fill="#172f40" text-anchor="start">the same 3 items</text>
+<rect x="704" y="62" width="147" height="74" rx="6" fill="#f2f5f8" stroke="#899ca8" stroke-width="1.25"/>
+<text x="714" y="84" font-size="14" font-weight="700" fill="#172f40" text-anchor="start">Validate child</text>
+<text x="714" y="106" font-size="12.8" font-weight="400" fill="#172f40" text-anchor="start">Score on all 20</text>
+<text x="714" y="123" font-size="12.8" font-weight="400" fill="#172f40" text-anchor="start">original val. items</text>
+<path d="M147 99 H178" stroke="#29445b" stroke-width="1.65" fill="none" stroke-linejoin="round" marker-end="url(#base)"/>
+<path d="M323 99 H357" stroke="#29445b" stroke-width="1.65" fill="none" stroke-linejoin="round" marker-end="url(#base)"/>
+<path d="M495 99 H530" stroke="#29445b" stroke-width="1.65" fill="none" stroke-linejoin="round" marker-end="url(#base)"/>
+<path d="M665 99 H702" stroke="#29445b" stroke-width="1.65" fill="none" stroke-linejoin="round" marker-end="url(#base)"/>
+<text x="595" y="154" font-size="12.5" font-weight="400" fill="#29445b" text-anchor="middle">Advance only if child sum &gt; parent sum</text>
+<path d="M778 137 V186" stroke="#29445b" stroke-width="1.65" fill="none" stroke-linejoin="round" stroke-dasharray="5 3" marker-end="url(#base)"/>
+<text x="788" y="162" font-size="12" font-weight="400" fill="#29445b" text-anchor="start">at end</text>
+<rect x="642" y="189" width="209" height="79" rx="6" fill="#fff" stroke="#9baab3" stroke-width="1.25"/>
+<text x="654" y="211" font-size="15" font-weight="700" fill="#172f40" text-anchor="start">Held-out test</text>
+<text x="654" y="232" font-size="13" font-weight="400" fill="#172f40" text-anchor="start">Best mean validation score</text>
+<text x="654" y="251" font-size="13" font-weight="400" fill="#172f40" text-anchor="start">→ fixed prompt on 30 items</text>
+<path d="M265 137 V186" stroke="#006b63" stroke-width="1.65" fill="none" stroke-linejoin="round" marker-end="url(#diagnosis)"/>
+<text x="274" y="164" font-size="12.5" font-weight="400" fill="#006b63" text-anchor="start">failed traces</text>
+<rect x="180" y="189" width="381" height="79" rx="6" fill="#e8f5f2" stroke="#389086" stroke-width="1.25"/>
+<text x="193" y="212" font-size="16" font-weight="700" fill="#006b63" text-anchor="start">Diagnostic decomposition</text>
+<text x="193" y="234" font-size="13.5" font-weight="400" fill="#172f40" text-anchor="start">Match a visible error to a quoted problem condition.</text>
+<text x="193" y="254" font-size="13.5" font-weight="400" fill="#172f40" text-anchor="start">Return the earliest supported stage and a reusable check.</text>
+<path d="M410 188 V138" stroke="#006b63" stroke-width="1.65" fill="none" stroke-linejoin="round" marker-end="url(#diagnosis)"/>
+<text x="421" y="178" font-size="12.5" font-weight="400" fill="#006b63" text-anchor="start">check</text>
+<path d="M365 269 V301" stroke="#90460d" stroke-width="1.65" fill="none" stroke-linejoin="round" marker-end="url(#synthesis)"/>
+<text x="375" y="289" font-size="12.5" font-weight="400" fill="#90460d" text-anchor="start">supported skill on an original training failure</text>
+<rect x="180" y="304" width="671" height="77" rx="6" fill="#fcf1e5" stroke="#b17440" stroke-width="1.25"/>
+<text x="193" y="325" font-size="16" font-weight="700" fill="#90460d" text-anchor="start">Failure-guided subproblem synthesis</text>
+<text x="193" y="348" font-size="13.5" font-weight="700" fill="#172f40" text-anchor="start">Author LLM proposes an LP/IP</text>
+<text x="193" y="368" font-size="12.7" font-weight="400" fill="#172f40" text-anchor="start">Use the grounded train diagnosis.</text>
+<path d="M418 346 H447" stroke="#90460d" stroke-width="1.65" fill="none" stroke-linejoin="round" marker-end="url(#synthesis)"/>
+<text x="460" y="348" font-size="13.5" font-weight="700" fill="#172f40" text-anchor="start">Verify with an exact solver</text>
+<text x="460" y="368" font-size="12.7" font-weight="400" fill="#172f40" text-anchor="start">Keep integer labels changed by the targeted mistake.</text>
+<path d="M179 344 H110 V161 H206 V138" stroke="#90460d" stroke-width="1.65" fill="none" stroke-linejoin="round" stroke-dasharray="5 3" marker-end="url(#synthesis)"/>
+<text x="15" y="225" font-size="14" font-weight="700" fill="#90460d" text-anchor="start">Later batches</text>
+<text x="15" y="247" font-size="12.5" font-weight="400" fill="#90460d" text-anchor="start">Replace at most</text>
+<text x="15" y="264" font-size="12.5" font-weight="400" fill="#90460d" text-anchor="start">1 of 3 items.</text>
+</g></svg>

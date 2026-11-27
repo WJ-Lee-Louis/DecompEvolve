@@ -26,15 +26,19 @@ class OptiMindTests(unittest.TestCase):
             config = optimize.read_config(name)
             prompt = Path(config["prompt_file"]).read_text(encoding="utf-8").strip()
             seed = evaluation.optimind_solving_instructions(prompt)
-            self.assertEqual(seed, prompt.splitlines()[0])
+            self.assertEqual(seed, "Solve the given optimization problem")
             self.assertEqual(providers.task_request("Question", config, prompt),
                              providers.task_request("Question", config, seed))
             self.assertEqual(evaluation.task_instructions(config, seed), prompt)
             self.assertEqual(evaluation.task_instructions(config, "Revised."),
-                             "Revised.\n" + prompt.split("\n", 1)[1])
+                             "Revised.\nWrite exactly " + prompt.split(" and write exactly ", 1)[1])
 
     def test_baseline_evaluates_test_in_ordered_waves(self):
-        _, splits, _ = load_experiment_dataset("industryor_optimind")
+        rows, splits, _ = load_experiment_dataset("industryor_optimind")
+        self.assertNotIn(39, {row["index"] for row in rows})
+        self.assertIn(90, splits["train"])
+        self.assertIn(77, splits["test"])
+        self.assertNotIn(77, splits["train"])
 
         def wave(client, rows, config, prompt):
             return [dict(index=row["index"], correct=True, status="correct", latency_seconds=0)

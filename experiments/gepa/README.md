@@ -2,17 +2,17 @@
 
 GEPA 0.1.4로 OptiMind IndustryOR의 풀이 프롬프트를 최적화합니다. 실행 전에 프로젝트 최상위에서 `python -m pip install -e '.[gepa,modal]'`로 의존성을 설치하세요.
 
-- 초기 후보 평가는 OptiMind Baseline과 같은 [기본 프롬프트](../api_baseline/prompts/optimind_baseline.txt)를 사용합니다. GEPA는 첫 줄에서 시작하는 풀이 지시를 수정합니다. 도구·코드 실행 금지, 정답 형식, 반올림 금지 규칙은 후보 평가와 최종 Test에 항상 추가합니다.
-- Train 35문항에서 매 반복마다 Easy·Medium·Hard 각 1문항을 뽑습니다. 난이도별 문항을 한 바퀴 돈 뒤 다시 섞습니다.
+- 초기 후보 평가는 OptiMind Baseline과 같은 [기본 프롬프트](../api_baseline/prompts/optimind_baseline.txt)를 사용합니다. GEPA는 풀이 지시를 수정합니다. 정답 형식과 반올림 금지 규칙은 후보 평가와 최종 Test에서 고정하며, API 요청에 외부 도구를 제공하지 않습니다.
+- Train 34문항에서 매 반복마다 Easy·Medium·Hard 각 1문항을 뽑습니다. 난이도별 문항을 한 바퀴 돈 뒤 다시 섞습니다.
 - 부모와 수정 후보를 같은 3문항으로 채점합니다. 부모가 3문항 모두 맞히면 반성 호출을 건너뜁니다. 점수가 오른 후보는 Validation 20문항에서 평가하고, 문항별 Pareto 선택과 Validation 평균 정확도를 사용합니다.
 - 반성 모델은 문제, 공개 풀이 출력 전체, 정오답, 파싱된 정답, 참조 정답을 받습니다. 시간·토큰 한도에 도달한 문항도 0점이고, 반성 모델에는 일반 오답으로 전달합니다. 실행 기록에는 실제 상태를 남깁니다. 이 피드백은 Train에서만 생성합니다. 최종 평가에는 확정된 프롬프트와 Test 30문항을 사용합니다.
 
 ```bash
-python -m experiments.gepa.optimize --config experiments/api_baseline/configs/optimind_openai.json --dry-run
-modal run --detach scripts/modal_experiments.py::run --method gepa --provider openai --model gpt-5.4-mini-2026-03-17 --max-metric-calls 600 --parallelism 4 --seed 42 --run-id gepa-openai-01
+python -m experiments.gepa.optimize --dry-run
+modal run --detach scripts/modal_experiments.py::run --method gepa --provider openai --model gpt-5.4-nano --max-metric-calls 1200 --parallelism 4 --seed 42 --run-id gepa-openai-01
 ```
 
-마지막 명령은 모델을 실제 호출합니다. Train과 Validation 풀이의 기본 상한은 `--max-metric-calls 600`입니다. 최종 Test 30회를 포함하면 풀이 호출은 최대 630회입니다. 최소 예산은 초기 Validation 20회와 전체 반복 26회를 합한 46회이며, 남은 예산으로 전체 반복을 마칠 수 없으면 최적화를 종료합니다. 풀이 호출은 문항당 15분(900초)과 추론 토큰을 포함한 생성 토큰 65,536개가 상한입니다. 별도 집계하는 반성 호출은 60초·8,192개가 상한이며, 이 한도에서 중단되면 해당 후보 생성을 건너뜁니다. 반성 모델은 기본적으로 풀이 모델과 같으며, `--reflection-provider`와 `--reflection-model`로 바꿀 수 있습니다.
+마지막 명령은 모델을 실제 호출합니다. Train과 Validation 풀이의 기본 상한은 `--max-metric-calls 1200`입니다. 최종 Test 30회를 포함하면 풀이 호출은 최대 1,230회입니다. 최소 예산은 초기 Validation 20회와 전체 반복 26회를 합한 46회이며, 남은 예산으로 전체 반복을 마칠 수 없으면 최적화를 종료합니다. 풀이 호출은 문항당 15분(900초)과 추론 토큰을 포함한 생성 토큰 65,536개가 상한입니다. 별도 집계하는 반성 호출은 60초·8,192개가 상한이며, 이 한도에서 중단되면 해당 후보 생성을 건너뜁니다. 반성 모델은 기본적으로 풀이 모델과 같으며, `--reflection-provider`와 `--reflection-model`로 바꿀 수 있습니다.
 
 Modal CPU 한 개에서 같은 배치의 API 요청을 기본 최대 4개씩 동시에 보냅니다. Train의 3문항은 함께 보내고, Validation은 4문항씩 나눠 보냅니다. GEPA의 반복과 후보 선택은 순서대로 진행됩니다. 팀원들은 서로 다른 모델이나 시드를 맡고, 각 실행의 결과를 모아 비교할 수 있습니다.
 

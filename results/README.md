@@ -4,7 +4,9 @@
 
 ## OptiMind IndustryOR Baseline
 
-모든 실행은 동일한 Test 30문항과 문항당 15분·65,536 생성 토큰 상한으로 평가했습니다.
+현재 분할에서 기본 지침의 GPT-5.4 nano Test 정확도는 **23/30 (76.7%)**다. Easy 8/11, Medium 12/15, Hard 3/4이며 API 오류와 타임아웃은 없었다. [평가 요약](baseline/gpt-5.4-nano/nano-base-test30-s42/summary.json)
+
+아래 완료 실행은 기존 Test 30문항과 문항당 15분·65,536 생성 토큰 상한으로 평가했습니다. 새 실험은 39번 대신 기존 Train의 77번을 포함한 Test 30문항을 사용합니다. [현재 평가 분할](../data/industryor_optimind/splits/manifest.json)
 
 | 모델 | 기본 프롬프트 | 추론 강도 | 정확도 | Easy | Medium | Hard | 타임아웃 |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: |

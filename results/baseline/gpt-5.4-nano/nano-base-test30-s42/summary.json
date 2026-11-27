@@ -1,0 +1,90 @@
+{
+  "total_selected": 30,
+  "records_written": 30,
+  "remaining": 0,
+  "completed": true,
+  "correct": 23,
+  "accuracy": 0.7666666666666667,
+  "accuracy_on_recorded": 0.7666666666666667,
+  "status_counts": {
+    "incorrect": 7,
+    "correct": 23
+  },
+  "usage": {
+    "input_tokens": 9241,
+    "output_tokens": 165602,
+    "total_tokens": 174843,
+    "reasoning_tokens": 154611,
+    "cached_input_tokens": 0
+  },
+  "total_latency_seconds": 1051.014444701,
+  "note": "Accuracy is label agreement; API/incomplete/format failures score zero. Reasoning tokens are included in output_tokens, not additional to them. Timeouts and token-limit responses also score zero.",
+  "by_difficulty": {
+    "Easy": {
+      "total_selected": 11,
+      "records_written": 11,
+      "remaining": 0,
+      "completed": true,
+      "correct": 8,
+      "accuracy": 0.7272727272727273,
+      "accuracy_on_recorded": 0.7272727272727273,
+      "status_counts": {
+        "incorrect": 3,
+        "correct": 8
+      },
+      "usage": {
+        "input_tokens": 2649,
+        "output_tokens": 30769,
+        "total_tokens": 33418,
+        "reasoning_tokens": 27230,
+        "cached_input_tokens": 0
+      },
+      "total_latency_seconds": 196.62115246700046,
+      "note": "Accuracy is label agreement; API/incomplete/format failures score zero. Reasoning tokens are included in output_tokens, not additional to them."
+    },
+    "Medium": {
+      "total_selected": 15,
+      "records_written": 15,
+      "remaining": 0,
+      "completed": true,
+      "correct": 12,
+      "accuracy": 0.8,
+      "accuracy_on_recorded": 0.8,
+      "status_counts": {
+        "correct": 12,
+        "incorrect": 3
+      },
+      "usage": {
+        "input_tokens": 5218,
+        "output_tokens": 113787,
+        "total_tokens": 119005,
+        "reasoning_tokens": 108131,
+        "cached_input_tokens": 0
+      },
+      "total_latency_seconds": 723.6510704959999,
+      "note": "Accuracy is label agreement; API/incomplete/format failures score zero. Reasoning tokens are included in output_tokens, not additional to them."
+    },
+    "Hard": {
+      "total_selected": 4,
+      "records_written": 4,
+      "remaining": 0,
+      "completed": true,
+      "correct": 3,
+      "accuracy": 0.75,
+      "accuracy_on_recorded": 0.75,
+      "status_counts": {
+        "incorrect": 1,
+        "correct": 3
+      },
+      "usage": {
+        "input_tokens": 1374,
+        "output_tokens": 21046,
+        "total_tokens": 22420,
+        "reasoning_tokens": 19250,
+        "cached_input_tokens": 0
+      },
+      "total_latency_seconds": 130.74222173799967,
+      "note": "Accuracy is label agreement; API/incomplete/format failures score zero. Reasoning tokens are included in output_tokens, not additional to them."
+    }
+  }
+}

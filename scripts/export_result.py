@@ -32,6 +32,8 @@ def export_result(source, results_root):
     manifest = read_json(source / "manifest.json")
     is_gepa = "task" in manifest and "split_ids" in manifest
     method = "gepa" if is_gepa else "baseline"
+    if "decompevolve" in manifest:
+        method = "decompevolve"
     model = manifest["task" if is_gepa else "config"]["model"]
     for segment in (model, source.name):
         if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", segment):
@@ -76,6 +78,11 @@ def export_result(source, results_root):
         reflections = source / "reflections.jsonl"
         if reflections.is_file():
             artifacts[Path("reflections.jsonl")] = jsonl_bytes(without_provider_response(read_jsonl(reflections)))
+
+    if method == "decompevolve":
+        for name in ("diagnoses.jsonl", "authoring.jsonl", "synthetic.jsonl", "train_batches.jsonl", "original_batches.jsonl"):
+            if (source / name).is_file():
+                artifacts[Path(name)] = (source / name).read_bytes()
 
     target = Path(results_root) / method / model / source.name
     if target.exists():

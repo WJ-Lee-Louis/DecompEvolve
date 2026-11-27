@@ -5,14 +5,14 @@
   "difficulty_sha256": "ff73c24961e703268dc91dd223fe5d98c5515484eca9c6b34cd3a858a6d51153",
   "seed": 42,
   "counts": {
-    "train": 35,
+    "train": 34,
     "val": 20,
     "test": 30
   },
   "difficulty_counts": {
     "train": {
       "Easy": 16,
-      "Medium": 15,
+      "Medium": 14,
       "Hard": 4
     },
     "val": {
@@ -26,7 +26,19 @@
       "Hard": 4
     }
   },
-  "group_count": 76,
+  "excluded_items": [
+    {
+      "index": 39,
+      "reason": "The continuous optimum is 36288567.0369458..., while the upstream label is 36288567."
+    }
+  ],
+  "reassigned_item": {
+    "index": 77,
+    "from": "train",
+    "to": "test",
+    "selection": "Seeded random choice among Medium Train items in singleton groups."
+  },
+  "group_count": 75,
   "grouping": "Repository lexical heuristic plus reviewed variants. Assign multi-item groups to the least filled eligible splits first, then shuffle singletons by difficulty.",
   "protocol": "Within-benchmark prompt optimization. Train supplies feedback, validation ranks prompts, and test is held out.",
   "reviewed_groups": [

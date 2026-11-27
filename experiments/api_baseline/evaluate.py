@@ -18,7 +18,7 @@ PAUSED = 75
 
 def main(argv=None, checkpoint=None, deadline=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", required=True, help="Config JSON path, relative to the project root")
+    parser.add_argument("--config", default="experiments/api_baseline/configs/optimind_nano.json", help="Config JSON path, relative to the project root")
     parser.add_argument("--model", help="Override the model ID within the selected provider")
     parser.add_argument("--split", choices=["train", "val", "test"], default="test")
     parser.add_argument("--limit", type=int, help="Use the first N selected IDs for a smoke test")

@@ -2,7 +2,7 @@
 
 Failure-Guided Subproblem Synthesis for Self-Evolving Prompt Optimization Agents
 
-OptiMind IndustryOR의 API Baseline과 GEPA 비교 실험을 실행할 수 있습니다. DecompEvolve 방법은 설계 중입니다.
+OptiMind IndustryOR에서 Baseline, GEPA, DecompEvolve를 실행할 수 있습니다. 세 최적화 조건(GEPA, 진단만, 진단+합성)의 Train+Validation 풀이 상한은 각각 1,200회입니다. 새 비교의 기본 모델은 풀이·진단·반성 모두 `gpt-5.4-nano`입니다. [DecompEvolve 설계와 실행](experiments/decompevolve/README.md)
 
 ## 폴더 구성
 
@@ -16,7 +16,7 @@ DecompEvolve/
 ├── data/
 │   ├── icml/           # ICML 372문항, 그룹 설정, 고정 train/val/test 분할
 │   ├── industryor/     # 기존 IndustryOR CSV 85문항
-│   └── industryor_optimind/  # OptiMind 교정판 99문항, 정수 정답 CSV 85문항
+│   └── industryor_optimind/  # OptiMind 교정판 99문항, 정수 라벨 85문항 중 84문항 사용
 ├── reports/
 ├── scripts/            # 데이터 분할 및 Modal 실행
 ├── runs/               # 로컬 원본과 재개용 체크포인트
@@ -47,12 +47,12 @@ ICML 평가는 `data/icml/splits/`에 저장된 고정 분할을 사용합니다
 
 ## 실험 실행
 
-팀원용 [실험 환경 세팅 가이드](reports/WJ/261121_실험환경세팅가이드.md)에서 API 키와 Modal 계정을 연결하고 실행을 요청할 수 있습니다. 새 비교 실험은 OptiMind IndustryOR의 고정 Train/Validation/Test 35/20/30문항을 사용합니다. 실행 옵션과 결과 형식은 [Baseline](experiments/api_baseline/README.md)과 [GEPA](experiments/gepa/README.md)에 있습니다.
+팀원용 [실험 환경 세팅 가이드](reports/WJ/261121_실험환경세팅가이드.md)에서 API 키와 Modal 계정을 연결하고 실행을 요청할 수 있습니다. 새 비교 실험은 OptiMind IndustryOR의 고정 Train/Validation/Test 34/20/30문항을 사용합니다. 39번은 연속 최적값이 소수여서 제외했고, 기존 Train의 Medium 77번을 Test로 옮겼습니다. 실행 옵션과 결과 형식은 [Baseline](experiments/api_baseline/README.md)과 [GEPA](experiments/gepa/README.md)에 있습니다.
 
 저장소 최상위에서 OptiMind Test 구성을 API 호출 없이 확인할 수 있습니다.
 
 ```bash
-python -m experiments.api_baseline.evaluate --config experiments/api_baseline/configs/optimind_openai.json --dry-run
+python -m experiments.api_baseline.evaluate --dry-run
 ```
 
 이전 ICML 실험은 기존 모델별 설정으로 재현할 수 있습니다. [ICML Baseline 결과 보고서](experiments/api_baseline/docs/261109_baseline_results.md)
